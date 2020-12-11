@@ -161,7 +161,6 @@ def get_index_street(list_bbox_str, number_line=4):
     list_street = []
     for i in range(number_line):
         content = list_bbox_str[i].lower()
-        print(content)
         for word in LIST_STREET_DEF:
             if content.find(word) != -1:
                 flag = False
@@ -173,7 +172,7 @@ def get_index_street(list_bbox_str, number_line=4):
                     if i not in list_street:
                         list_street.append(i)
                         break
-                    
+
     return list_street
 
 def get_index_name(list_bbox_str, number_line=4):
