@@ -159,6 +159,7 @@ def get_prices(height_img, width_img, prices_box, list_bbox, list_bbox_str):
 
 def get_index_street(list_bbox_str, number_line=4):
     list_street = []
+    print(len(list_bbox_str))
     for i in range(number_line):
         content = list_bbox_str[i].lower()
         for word in LIST_STREET_DEF:
@@ -206,35 +207,55 @@ def get_submit_image(image_path, annot_path):
     list_number_prices, index_day_bbox = get_day(list_bbox_char, list_bbox_str)
     # day = list_bbox_str[index_day_bbox]
     # print(index_day_bbox)
-    output_dict[index_day_bbox] = list_bbox_str[index_day_bbox]
+    try:
+        output_dict[index_day_bbox] = [list_bbox_str[index_day_bbox], 'SELLER']
+    except:
+        print("Not found index!")
+        pass
     
     # get prices
     prices_top = get_top_prices(list_number_prices, list_bbox_str, 1)
-    index_prices = prices_top[0]
-    prices_box = list_bbox[index_prices]
-    prices = list_bbox_str[index_prices]
-    index_string_prices = get_prices(height, width, prices_box, list_bbox, list_bbox_str)
-    # prices = str_prices + " " + prices
-    # print(index_prices)
-    # print(index_string_prices)
-    prices = list_bbox_str[index_string_prices] + " " + list_bbox_str[index_prices]
-    output_dict[index_prices] = prices
+    try:
+        index_prices = prices_top[0]
+        prices_box = list_bbox[index_prices]
+        prices = list_bbox_str[index_prices]
+        index_string_prices = get_prices(height, width, prices_box, list_bbox, list_bbox_str)
+        # prices = str_prices + " " + prices
+        # print(index_prices)
+        # print(index_string_prices)
+        prices = list_bbox_str[index_string_prices] + " " + list_bbox_str[index_prices]
+        output_dict[index_prices] = [prices, 'TIMESTAMPS']
+    except:
+        print("Not found index!")
+        pass
 
     # get street
-    list_index_street = get_index_street(list_bbox_str)
-    # street = ' '.join(list_street)
-    # print(list_index_street)
-    for index_street in list_index_street:
-        output_dict[index_street] = list_bbox_str[index_street]
+    try:
+        list_index_street = get_index_street(list_bbox_str)
+        # street = ' '.join(list_street)
+        # print(list_index_street)
+        for index_street in list_index_street:
+            output_dict[index_street] = [list_bbox_str[index_street], 'ADDRESS']
+    except:
+        print("Not found index!")
+        pass
 
     # get name
     index_name = get_index_name(list_bbox_str)
     # print(index_name)
-    output_dict[index_name] = list_bbox_str[index_name]
+    try:
+        output_dict[index_name] = [list_bbox_str[index_name], 'SELLER']
+    except:
+        print("Not found index!")
+        pass
 
     # get seller
     index_seller = get_index_seller(list_bbox_str)
-    output_dict[index_seller] = list_bbox_str[index_seller]
+    try:
+        output_dict[index_seller] = [list_bbox_str[index_seller], 'SELLER']
+    except:
+        print("Not found index!")
+        pass
 
     # sort
     output_dict = collections.OrderedDict(sorted(output_dict.items()))
@@ -243,12 +264,15 @@ def get_submit_image(image_path, annot_path):
 
 def print_output(output_dict):
     list_value = []
+    list_field = []
     for key, value in output_dict.items():
-        list_value.append(value)
+        list_value.append(value[0])
+        list_field.append(value[1])
     
-    result = '||| '.join(list_value)
+    result_value = '|||'.join(list_value)
+    result_field = '|||'.join(list_field)
     
-    return result
+    return result_value, result_field
 
 if __name__ == "__main__":
     annot_path = "annot.txt"
@@ -256,5 +280,6 @@ if __name__ == "__main__":
 
     output_dict = get_submit_image(image_path, annot_path)
     
-    output = print_output(output_dict)
-    print(output)
+    result_value, result_field = print_output(output_dict)
+    print(result_value)
+    print(result_field)
