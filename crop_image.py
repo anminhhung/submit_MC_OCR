@@ -126,6 +126,46 @@ def cal_length(v):
 def cal_angle(v1, v2):
     return math.acos(cal_dotproduct(v1, v2) / (cal_length(v1) * cal_length(v2)))
 
+def cal_point_to_vector(point, p1, p2):
+    point = np.array(point)
+    p1 = np.array(p1)
+    p2 = np.array(p2)
+    d = np.linalg.norm(np.cross(p2-p1, p1-point))/np.linalg.norm(p2-p1)
+
+    return d
+
+def cal_distance_two_point(p1, p2):
+    dist = math.hypot(p2[0] - p1[0], p2[1] - p1[1])
+
+    return dist
+    
+def rotate_vector(point_rotation, point_tail, sin_a, cos_a):
+    x = (point_tail[0] - point_rotation[0])*cos_a - (point_tail[1] - point_rotation[1])*sin_a + point_rotation[0]
+    y = (point_tail[0] - point_rotation[0])*sin_a + (point_tail[1] - point_rotation[1])*cos_a + point_rotation[1]
+
+    return [int(x), int(y)]
+
+def get_info_rotation(list_bbox, point_par):
+    bbox = list_bbox[0]
+    point3 = (bbox[1][0], bbox[1][1])
+    point4 = (bbox[2][0], bbox[2][1])
+
+    vector_box = create_vector(point3, point4)
+
+    vector_raw = create_vector(point3, point_par)
+
+    # 3 canh tam giac vuong
+    distance_par_vector = cal_point_to_vector(point_par, point3, point4)
+    distance_p3_par = cal_distance_two_point(point3, point_par)
+    edge_another = math.sqrt(distance_p3_par**2 - distance_par_vector**2)
+
+    sin_a = distance_par_vector / distance_p3_par  
+    cos_a = edge_another / distance_p3_par
+
+    return point3, sin_a, cos_a
+
+
+
 if __name__ == '__main__':
     annot_path = "image/annot.txt"
     image_path = "image/image.jpg"
@@ -133,11 +173,8 @@ if __name__ == '__main__':
     image = cv2.imread(image_path)
     list_bbox, list_bbox_char, list_bbox_str = get_list_bbox(annot_path)
     
-    # for box in list_bbox:
-    #     print(box)
-
-    # draw 
-    image = draw_list_bbox(image, list_bbox)
+    # xet thang nghieng thi xet song song la ok 
+    # detect thang
 
     # up-down
     min_y, max_y = up_down_process(image, list_bbox)
@@ -146,28 +183,36 @@ if __name__ == '__main__':
     min_x, max_x = left_right_process(image, list_bbox)
     print("min_x: {}, max_x: {}".format(min_x, max_x))
 
-    reciept_bbox = [[min_x, min_y], [max_x, min_y], [max_x, max_y], [min_x, max_y]]
-    image = draw_box(image, reciept_bbox)
+    reciept_point1 = [min_x, min_y]
+    reciept_point2 = [max_x, min_y]
+    reciept_point3 = [max_x, max_y]
+    reciept_point4 = [min_x, max_y]
+
+    reciept_bbox = [reciept_point1 , reciept_point2, reciept_point3, reciept_point4]
+    # image = draw_box(image, reciept_bbox)
     
+    # cv2.imwrite("view_box_tmp.jpg", image)
+ 
+    ########### 
+    # detect nghieng
+
+    # rotate vector
+    root_head_point, sin_a, cos_a = get_info_rotation(list_bbox, [max_x, min_y])
+
+    new_reciept_point1 = rotate_vector(root_head_point, reciept_point1, sin_a, cos_a)
+    new_reciept_point2 = rotate_vector(root_head_point, reciept_point2, sin_a, cos_a)
+    new_reciept_point3 = rotate_vector(reciept_point4, reciept_point3, sin_a, cos_a)
+    root_tail_point = (root_head_point[0], reciept_point4[1])
+    new_reciept_point4 = rotate_vector(root_tail_point, reciept_point4, sin_a, cos_a)
+
+    # align point
+    new_reciept_point2 = [new_reciept_point2[0]+20, new_reciept_point2[1]]
+    new_reciept_box = [new_reciept_point1, new_reciept_point2, new_reciept_point3, new_reciept_point4]    
+    print(new_reciept_box)
+
+    # # visualize rotation
+    # image = cv2.line(image, (new_reciept_point1[0], new_reciept_point1[1]), (new_reciept_point2[0], new_reciept_point2[1]), (255, 0, 0), 2)
+    # image = cv2.line(image, (new_reciept_point4[0], new_reciept_point4[1]), (new_reciept_point3[0], new_reciept_point3[1]), (255, 0, 0), 2)
+
+    image = draw_box(image, new_reciept_box)
     cv2.imwrite("view_box.jpg", image)
-
-    # annot_path = "image/annot.txt"
-    # image_path = "image/image.jpg"
-
-    # image = cv2.imread(image_path)
-    # height, width, _ = image.shape
-    # list_bbox, list_bbox_char, list_bbox_str = get_list_bbox(annot_path)
-
-    # # vector ->
-    # bbox = list_bbox[0]
-    # point3 = (bbox[1][0], bbox[1][1])
-    # point4 = (bbox[2][0], bbox[2][1])
-
-    # vector_box = create_vector(point3, point4)
-    # vector_raw = create_vector((0,0), (width, 0))
-
-    # angle = cal_angle(vector_box, vector_raw)
-    # print(angle)
-
-    # image = cv2.line(image, point3, point4, (0, 255, 0) , 2)
-    # cv2.imwrite("view_box.jpg", image)
