@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import re
+import os
 from collections import deque  
 from sklearn.metrics.pairwise import cosine_similarity
 import collections
@@ -16,6 +17,14 @@ LIST_SELLER_DEF = [x.strip() for x in content]
 with open("phone.txt") as f:
     content = f.readlines()
 LIST_PHONE_DEF = [x.strip() for x in content] 
+
+with open("prices.txt") as f:
+    content = f.readlines()
+LIST_PRICES_DEF = [x.strip() for x in content] 
+
+with open("prices_prioritize.txt") as f:
+    content = f.readlines()
+LIST_PRICES_PRIORITIZE_DEF = [x.strip() for x in content] 
 
 def draw_box(image, bbox, color=(0,0,255)):
     # pts = np.array([[xs_af[0],ys_af[0]],[xs_af[1],ys_af[1]],[xs_af[2],ys_af[2]],[xs_af[3],ys_af[3]]], np.int32)
@@ -114,21 +123,41 @@ def get_day(list_bbox_char, list_bbox_str):
     
     return list_number_prices, index
 
-def get_top_prices(list_number_prices, list_bbox_str, top=1):
+def get_top_prices(list_number_prices, list_bbox_str, top=5):
     prices_top = deque([], top) # lấy top 1 trước có gì rồi sửa lại lấy top k 
+    backup_arr = {}
     max_number = 0.0
+    list_char_prices = ['d', 'đ', 'Đ', 'D', 'đồng']
     for i in list_number_prices:
-        # print(list_bbox_str[i])
         prices = 0
         try:
             if list_bbox_str[i].find('.') == -1:
                 continue
-            prices = float(list_bbox_str[i])
-        except:
+            
+            prices = list_bbox_str[i]
+            for char_price in list_char_prices:
+                if prices.find(char_price) != -1:
+                    prices = prices.replace(char_price, '')
+
+            prices = float(prices)
+        except Exception as e:
+            print("bug in get top prices: ", e)
             pass # string not number!
-        if prices > max_number:
+        if prices >= max_number:
             max_number = prices
             prices_top.append(i)
+        else:
+            if prices > 0:
+                backup_arr[i] = prices
+        
+    # them phan bu` cho du top5
+    backup_arr = {k: v for k, v in sorted(backup_arr.items(), key=lambda item: item[1])}
+    number_missed = top - len(prices_top)
+    if number_missed > 0:
+        i = 0
+        for key, value in backup_arr.items():
+            prices_top.append(key)
+            i += 1
     
     return prices_top
 
@@ -149,13 +178,6 @@ def get_prices(height_img, width_img, prices_box, list_bbox, list_bbox_str):
         # image = draw_box(image, bbox, (255, 255, 0))
         
     bbox_index = get_index_cosine(list_cosine, list_index_cosine)
-    # bbox_result = list_bbox[bbox_index]
-
-    # image = draw_box(image, bbox_result, (255, 255, 2))
-    # image = draw_box(image, prices_box, (255, 255, 0))
-    # cv2.imwrite("test.jpg", image)
-
-    # str_prices = list_bbox_str[bbox_index]
 
     return bbox_index
 
@@ -210,24 +232,50 @@ def get_submit_image(image_path, annot_path):
     # day = list_bbox_str[index_day_bbox]
     # print(index_day_bbox)
     try:
-        output_dict[index_day_bbox] = [list_bbox_str[index_day_bbox], 'SELLER']
+        output_dict[index_day_bbox] = [list_bbox_str[index_day_bbox], 'TIMESTAMPS']
     except:
         print("Not found index!")
         pass
     
     # get prices
-    prices_top = get_top_prices(list_number_prices, list_bbox_str, 1)
+    top_number = 7
+    prices_top = get_top_prices(list_number_prices, list_bbox_str, top_number)
     try:
-        index_prices = prices_top[0]
-        prices_box = list_bbox[index_prices]
-        prices = list_bbox_str[index_prices]
-        index_string_prices = get_prices(height, width, prices_box, list_bbox, list_bbox_str)
-        # prices = str_prices + " " + prices
-        # print(index_prices)
-        # print(index_string_prices)
-        prices = list_bbox_str[index_string_prices] + " " + list_bbox_str[index_prices]
-        output_dict[index_prices] = [prices, 'TIMESTAMPS']
-    except:
+        for i in range(len(prices_top)):
+            index_prices = prices_top[i]
+            prices_box = list_bbox[index_prices]
+            prices = list_bbox_str[index_prices]
+            index_string_prices = get_prices(height, width, prices_box, list_bbox, list_bbox_str)
+            
+            prefix = list_bbox_str[index_string_prices]
+            prefix = prefix.lower()
+            print("prefix: ", prefix)
+            print("prices: ", list_bbox_str[index_prices])
+            #  kiem tra list prices uu tien
+            flag = False
+            for word in LIST_PRICES_PRIORITIZE_DEF:
+                if prefix.find(word) != -1:
+                    flag = True
+                    break
+            
+            if flag==True:
+                prices = prefix + " " + list_bbox_str[index_prices]
+                output_dict[index_prices] = [prices, 'TIMESTAMPS']
+                break
+            
+            # neu ko co trong list uu tien thi kiem tra list prices chung
+            flag = False
+            for word in LIST_PRICES_DEF:
+                if prefix.find(word) != -1:
+                    flag = True
+                    break
+            
+            if flag==True:
+                prices = prefix + " " + list_bbox_str[index_prices]
+                output_dict[index_prices] = [prices, 'TIMESTAMPS']
+                break
+    except Exception as e:
+        print(e)
         print("Not found index!")
         pass
 
@@ -251,13 +299,13 @@ def get_submit_image(image_path, annot_path):
         print("Not found index!")
         pass
 
-    # get seller
-    index_seller = get_index_seller(list_bbox_str)
-    try:
-        output_dict[index_seller] = [list_bbox_str[index_seller], 'SELLER']
-    except:
-        print("Not found index!")
-        pass
+    # # get seller
+    # index_seller = get_index_seller(list_bbox_str)
+    # try:
+    #     output_dict[index_seller] = [list_bbox_str[index_seller], 'SELLER']
+    # except:
+    #     print("Not found index!")
+    #     pass
 
     # sort
     output_dict = collections.OrderedDict(sorted(output_dict.items()))
@@ -277,8 +325,10 @@ def print_output(output_dict):
     return result_value, result_field
 
 if __name__ == "__main__":
-    annot_path = "annot.txt"
-    image_path = "image.jpg"
+    name = "mcocr_warmup_6313b762c38ecbcb21bd954e59c70f53_00385"
+
+    annot_path = os.path.join('result_txt', name+".txt")
+    image_path = os.path.join('mc_ocr_warmup_500images', 'warmup_images', name+".jpg")
 
     output_dict = get_submit_image(image_path, annot_path)
     
