@@ -9,9 +9,18 @@ tổng tiến phải t.toàn
 tổng tiến phải t toán
 tổng tiến phải t toàn
 tổng tiến phải trả
+tiền thanh toán
+tiến thanh toán
+tiền thanh toàn
+tiến thanh toàn
+tiên thanh toán
+tiên thanh toàn
 tổng số tiền thanh toán
 tổng số tiến thanh toán
 tổng số tiến thanh toàn
 tổng số thanh toán
 tổng số thanh toàn
-cộng tiền hàng
+tổng cộng
+tổng công
+tông cộng
+tông công

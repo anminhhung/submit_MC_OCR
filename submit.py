@@ -127,28 +127,36 @@ def get_top_prices(list_number_prices, list_bbox_str, top=5):
     prices_top = deque([], top) # lấy top 1 trước có gì rồi sửa lại lấy top k 
     backup_arr = {}
     max_number = 0.0
+    print(list_bbox_str)
     list_char_prices = ['d', 'đ', 'Đ', 'D', 'đồng']
+
     for i in list_number_prices:
-        prices = 0
+        # prices = 0
+        print("i: ", i)
+        print("list_bbox_str[i]: ", list_bbox_str[i])
         try:
-            if list_bbox_str[i].find('.') == -1:
-                continue
+            # if list_bbox_str[i].find('.') == -1:
+            #     continue
             
             prices = list_bbox_str[i]
+            print("prices: ", prices)
             for char_price in list_char_prices:
                 if prices.find(char_price) != -1:
                     prices = prices.replace(char_price, '')
+                if prices.find(" ") != -1:
+                    prices = prices.replace(" ", ".")
 
             prices = float(prices)
+
+            if prices >= max_number:
+                max_number = prices
+                prices_top.append(i)
+            else:
+                if prices > 0:
+                    backup_arr[i] = prices
         except Exception as e:
             print("bug in get top prices: ", e)
             pass # string not number!
-        if prices >= max_number:
-            max_number = prices
-            prices_top.append(i)
-        else:
-            if prices > 0:
-                backup_arr[i] = prices
         
     # them phan bu` cho du top5
     backup_arr = {k: v for k, v in sorted(backup_arr.items(), key=lambda item: item[1])}
@@ -158,7 +166,7 @@ def get_top_prices(list_number_prices, list_bbox_str, top=5):
         for key, value in backup_arr.items():
             prices_top.append(key)
             i += 1
-    
+    print("prices top: ", prices_top)
     return prices_top
 
 def get_prices(height_img, width_img, prices_box, list_bbox, list_bbox_str):
@@ -238,42 +246,56 @@ def get_submit_image(image_path, annot_path):
         pass
     
     # get prices
-    top_number = 7
+    top_number = 20
     prices_top = get_top_prices(list_number_prices, list_bbox_str, top_number)
     try:
+        flag_found = False
         for i in range(len(prices_top)):
             index_prices = prices_top[i]
             prices_box = list_bbox[index_prices]
             prices = list_bbox_str[index_prices]
             index_string_prices = get_prices(height, width, prices_box, list_bbox, list_bbox_str)
             
-            prefix = list_bbox_str[index_string_prices]
-            prefix = prefix.lower()
-            print("prefix: ", prefix)
-            print("prices: ", list_bbox_str[index_prices])
+            prefix_raw = list_bbox_str[index_string_prices]
+            prefix = prefix_raw.lower()
             #  kiem tra list prices uu tien
             flag = False
+            print("prefix: ", prefix)
+            print("prices: ", list_bbox_str[index_prices])
             for word in LIST_PRICES_PRIORITIZE_DEF:
+                # print("prefix in PRIORITIZE: ", prefix)
                 if prefix.find(word) != -1:
                     flag = True
                     break
             
             if flag==True:
-                prices = prefix + " " + list_bbox_str[index_prices]
-                output_dict[index_prices] = [prices, 'TIMESTAMPS']
+                prices = prefix_raw + '|||' + list_bbox_str[index_prices]
+                output_dict[index_prices] = [prices, 'TOTAL']
+                flag_found = True
                 break
-            
-            # neu ko co trong list uu tien thi kiem tra list prices chung
-            flag = False
-            for word in LIST_PRICES_DEF:
-                if prefix.find(word) != -1:
-                    flag = True
+        
+        if flag_found == False:
+            for i in range(len(prices_top)):
+                index_prices = prices_top[i]
+                prices_box = list_bbox[index_prices]
+                prices = list_bbox_str[index_prices]
+                index_string_prices = get_prices(height, width, prices_box, list_bbox, list_bbox_str)
+                
+                prefix_raw = list_bbox_str[index_string_prices]
+                prefix = prefix_raw.lower()
+                # neu ko co trong list uu tien thi kiem tra list prices chung
+                flag = False
+                for word in LIST_PRICES_DEF:
+                    # print("prefix in prices def: ", prefix)
+                    if prefix.find(word) != -1:
+                        flag = True
+                        break
+                
+                if flag==True:
+                    prices = prefix_raw + '|||' + list_bbox_str[index_prices]
+                    output_dict[index_prices] = [prices, 'TOTAL']
                     break
-            
-            if flag==True:
-                prices = prefix + " " + list_bbox_str[index_prices]
-                output_dict[index_prices] = [prices, 'TIMESTAMPS']
-                break
+
     except Exception as e:
         print(e)
         print("Not found index!")
@@ -325,10 +347,10 @@ def print_output(output_dict):
     return result_value, result_field
 
 if __name__ == "__main__":
-    name = "mcocr_warmup_6313b762c38ecbcb21bd954e59c70f53_00385"
+    name = "mcocr_public_145014xhzbt"
 
     annot_path = os.path.join('result_txt', name+".txt")
-    image_path = os.path.join('mc_ocr_warmup_500images', 'warmup_images', name+".jpg")
+    image_path = os.path.join('train_images', name+".jpg")
 
     output_dict = get_submit_image(image_path, annot_path)
     
