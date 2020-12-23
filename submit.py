@@ -309,9 +309,11 @@ def get_submit_image(image_path, annot_path):
                             
                     if tmp == True:
                         break
-
+                
+                print("index prices: ", index_prices)
                 prices = prefix_raw + '|||' + prices_value
-                output_dict[index_prices] = [prices, 'TOTAL_COST']
+                output_dict[index_prices] = [prefix_raw, 'TOTAL_COST']
+                output_dict[index_prices*100] = [prices_value, 'TOTAL_COST']
                 flag_found = True
                 break
         
@@ -370,9 +372,10 @@ def get_submit_image(image_path, annot_path):
                                 
                         if tmp == True:
                             break
-
+                    print("index prices: ", index_prices)
                     prices = prefix_raw + '|||' + prices_value
-                    output_dict[index_prices] = [prices, 'TOTAL_COST']
+                    output_dict[index_prices] = [prefix_raw, 'TOTAL_COST']
+                    output_dict[index_prices*100] = [prices_value, 'TOTAL_COST']
                     break
 
     except Exception as e:
@@ -432,7 +435,6 @@ if __name__ == "__main__":
     image_path = os.path.join('train_images', name+".jpg")
 
     output_dict = get_submit_image(image_path, annot_path)
-    
     result_value, result_field = print_output(output_dict)
     print(result_value)
     print(result_field)
