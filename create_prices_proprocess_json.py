@@ -3,7 +3,7 @@ import os
 PRICES_PREPROCESS = {
     "Tổng": ["Tổng", "Tông", "Tống", "Tồng", "Tỗng", "Tộng"],
     "tổng": ["tổng", "tông", "tống", "tồng", "tỗng", "tộng"],
-    "TỔNG": ["TỔNG", "TÔNG", "TỐNG", "TỒNG", "TỖNG", "TỘNG"],
+    "TỔNG": ["TỔNG", "TÔNG", "TỐNG", "TỒNG", "TỖNG", "TỘNG", "TĂNG"],
     "Cộng": ["Cộng", "Công", "Cồng", "Cỗng", "Cổng", "Cống"],
     "cộng": ["cộng", "công", "cồng", "cỗng", "cổng", "cống"],
     "cộng:": ["cộng:", "công:", "cồng:", "cỗng", "cổng:", "cống:"],
@@ -13,7 +13,8 @@ PRICES_PREPROCESS = {
     "TIỀN": ["TIỀN", "TIẾN", "TIÊN", "TIỂN", "TIỄN", "TIỆN"],
     "TOÁN": ["TOÁN", "TOAN", "TOÀN", "TOẢN", "TOÃN", "TOẠN"],
     "Total": ["Total", "Sub Total", "sub total"],
-    "": ["2"]
+    "": ["2", "1"],
+    "Tong": ["Tong", "Tonn", "Tono"]
 }
 
 PRICES_CHAR = {
@@ -22,6 +23,14 @@ PRICES_CHAR = {
     "đ": ["d", "đ"],
     "Đ": ["D", "Đ"],
     ",": ["."]
+}
+
+PREFIX_CHAR = {
+    ":": [":", ",", ";"],
+    "VAT": ["VAT", "vat"],
+    "đ": ["d", "đ"],
+    "Đ": ["D", "Đ"],
+    ".": [". "]
 }
 
 a = "TỐNG TIẾN PHẢI T. TOÀN"

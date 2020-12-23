@@ -5,7 +5,7 @@ import os
 from collections import deque  
 from sklearn.metrics.pairwise import cosine_similarity
 import collections
-from create_prices_proprocess_json import PRICES_PREPROCESS, PRICES_CHAR
+from create_prices_proprocess_json import PRICES_PREPROCESS, PRICES_CHAR, PREFIX_CHAR
 
 with open("street.txt") as f:
     content = f.readlines()
@@ -250,7 +250,7 @@ def get_submit_image(image_path, annot_path):
         pass
     
     # get prices
-    top_number = 10
+    top_number = 20
     prices_top = get_top_prices(list_number_prices, list_bbox_str, top_number)
     try:
         flag_found = False
@@ -302,7 +302,7 @@ def get_submit_image(image_path, annot_path):
                 
                 tmp = False
                 prefix_raw = ' '.join(map(str, list_prefix))
-                for key, value in PRICES_CHAR.items():
+                for key, value in PREFIX_CHAR.items():
                     for ele in value:
                         index = prefix_raw.find(ele)
                         if index != -1:
@@ -369,7 +369,7 @@ def get_submit_image(image_path, annot_path):
                     tmp = False
                     prefix_raw = ' '.join(map(str, list_prefix))
                     # print("prefix_raw: ", prefix_raw)
-                    for key, value in PRICES_CHAR.items():
+                    for key, value in PREFIX_CHAR.items():
                         for ele in value:
                             index = prefix_raw.find(ele)
                             if index != -1:
@@ -436,7 +436,7 @@ def print_output(output_dict):
     return result_value, result_field
 
 if __name__ == "__main__":
-    name = "mcocr_val_145114clhnm"
+    name = "mcocr_val_145115azksw"
 
     annot_path = os.path.join('result_txt', name+".txt")
     image_path = os.path.join('upload', name+".jpg")
