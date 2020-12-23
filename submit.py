@@ -436,7 +436,7 @@ def print_output(output_dict):
     return result_value, result_field
 
 if __name__ == "__main__":
-    name = "mcocr_val_145115azksw"
+    name = "mcocr_val_145115waven"
 
     annot_path = os.path.join('result_txt', name+".txt")
     image_path = os.path.join('upload', name+".jpg")

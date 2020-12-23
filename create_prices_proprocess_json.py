@@ -7,14 +7,16 @@ PRICES_PREPROCESS = {
     "Cộng": ["Cộng", "Công", "Cồng", "Cỗng", "Cổng", "Cống"],
     "cộng": ["cộng", "công", "cồng", "cỗng", "cổng", "cống"],
     "cộng:": ["cộng:", "công:", "cồng:", "cỗng", "cổng:", "cống:"],
-    "tiền": ["tiền", "tiến", "tiên", "tiển", "tiễn", "tiện"],
+    "tiền": ["tiền", "tiến", "tiên", "tiển", "tiễn", "tiện", "thuo"],
     "tiền:": ["tiền:", "tiến:", "tiên:", "tiển:", "tiễn:", "tiện:"],
     "Tiền": ["Tiền", "Tiến", "Tiên", "Tiển", "Tiễn", "Tiện"],
     "TIỀN": ["TIỀN", "TIẾN", "TIÊN", "TIỂN", "TIỄN", "TIỆN"],
     "TOÁN": ["TOÁN", "TOAN", "TOÀN", "TOẢN", "TOÃN", "TOẠN"],
     "Total": ["Total", "Sub Total", "sub total"],
     "": ["2", "1"],
-    "Tong": ["Tong", "Tonn", "Tono"]
+    "Tong": ["Tong", "Tonn", "Tono"],
+    "quầy": ["quáy.", "quáy", "quây"],
+    "QUẦY": ["QUÁY.", "QUÁY", "QUÂY"]
 }
 
 PRICES_CHAR = {
