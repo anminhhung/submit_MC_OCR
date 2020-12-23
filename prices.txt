@@ -5,14 +5,20 @@ tổng tiền phải trả
 tổng số tiền thanh toán
 tổng số tiến thanh toán
 total
-thanh toán
-thanh toàn
+thành tiền
+thanh tiền
+thành tiến
+thanh tiến
+thành tiên
+thanh tiên
 tổng tiền
 tống tiến
 tống tiền
 tổng tiến
 tông tiền
 tông tiến
+tổng
+tổng:
 tổng cộng
 tổng công
 tông cộng
@@ -21,3 +27,6 @@ cộng tiến hàng
 cộng tiền hàng
 công tiến hàng
 công tiền hàng
+tiền khách trả
+tiên khách trả
+tiến mặt

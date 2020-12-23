@@ -6,11 +6,14 @@ PRICES_PREPROCESS = {
     "TỔNG": ["TỔNG", "TÔNG", "TỐNG", "TỒNG", "TỖNG", "TỘNG"],
     "Cộng": ["Cộng", "Công", "Cồng", "Cỗng", "Cổng", "Cống"],
     "cộng": ["cộng", "công", "cồng", "cỗng", "cổng", "cống"],
+    "cộng:": ["cộng:", "công:", "cồng:", "cỗng", "cổng:", "cống:"],
     "tiền": ["tiền", "tiến", "tiên", "tiển", "tiễn", "tiện"],
+    "tiền:": ["tiền:", "tiến:", "tiên:", "tiển:", "tiễn:", "tiện:"],
     "Tiền": ["Tiền", "Tiến", "Tiên", "Tiển", "Tiễn", "Tiện"],
     "TIỀN": ["TIỀN", "TIẾN", "TIÊN", "TIỂN", "TIỄN", "TIỆN"],
     "TOÁN": ["TOÁN", "TOAN", "TOÀN", "TOẢN", "TOÃN", "TOẠN"],
-    "Total": ["Total", "Sub Total", "sub total"]
+    "Total": ["Total", "Sub Total", "sub total"],
+    "": ["2"]
 }
 
 PRICES_CHAR = {
@@ -18,7 +21,7 @@ PRICES_CHAR = {
     "VAT": ["VAT", "vat"],
     "đ": ["d", "đ"],
     "Đ": ["D", "Đ"],
-    ".": [".", ". "]
+    ",": ["."]
 }
 
 a = "TỐNG TIẾN PHẢI T. TOÀN"

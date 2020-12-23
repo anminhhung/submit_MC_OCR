@@ -144,8 +144,11 @@ def get_top_prices(list_number_prices, list_bbox_str, top=5):
             for char_price in list_char_prices:
                 if prices.find(char_price) != -1:
                     prices = prices.replace(char_price, '')
-                if prices.find(" ") != -1:
+                index = prices.find(" ")
+                if index != -1:
                     prices = prices.replace(" ", ".")
+                if prices.find(".", index+1) != -1:
+                    prices = prices.replace(".", "")
 
             prices = float(prices)
 
@@ -279,6 +282,7 @@ def get_submit_image(image_path, annot_path):
                         if index != -1:
                             tmp = True
                             prices_value = prices_value.replace(ele, key)
+                            print("prices_value: ", prices_value)
                             break
 
                     if tmp == True:
@@ -344,6 +348,7 @@ def get_submit_image(image_path, annot_path):
                             if index != -1:
                                 tmp = True
                                 prices_value = prices_value.replace(ele, key)
+                                print("prices_value: ", prices_value)
                                 break
 
                         if tmp == True:
@@ -352,6 +357,7 @@ def get_submit_image(image_path, annot_path):
                     print("prefix: ", prefix_raw)
                     print("########")
                     list_prefix = prefix_raw.split()
+                    # print("list prefix: ", list_prefix)
                     for key, value in PRICES_PREPROCESS.items():
                         for ele in value:
                             for i in range(len(list_prefix)):
@@ -362,6 +368,7 @@ def get_submit_image(image_path, annot_path):
                     
                     tmp = False
                     prefix_raw = ' '.join(map(str, list_prefix))
+                    # print("prefix_raw: ", prefix_raw)
                     for key, value in PRICES_CHAR.items():
                         for ele in value:
                             index = prefix_raw.find(ele)
@@ -372,7 +379,7 @@ def get_submit_image(image_path, annot_path):
                                 
                         if tmp == True:
                             break
-                    print("index prices: ", index_prices)
+                    # print("prefix_raw: ", prefix_raw)
                     prices = prefix_raw + '|||' + prices_value
                     output_dict[index_prices] = [prefix_raw, 'TOTAL_COST']
                     output_dict[index_prices*100] = [prices_value, 'TOTAL_COST']
@@ -429,10 +436,10 @@ def print_output(output_dict):
     return result_value, result_field
 
 if __name__ == "__main__":
-    name = "mcocr_public_145014rczsi"
+    name = "mcocr_val_145114clhnm"
 
     annot_path = os.path.join('result_txt', name+".txt")
-    image_path = os.path.join('train_images', name+".jpg")
+    image_path = os.path.join('upload', name+".jpg")
 
     output_dict = get_submit_image(image_path, annot_path)
     result_value, result_field = print_output(output_dict)
