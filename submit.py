@@ -5,6 +5,7 @@ import os
 from collections import deque  
 from sklearn.metrics.pairwise import cosine_similarity
 import collections
+from create_prices_proprocess_json import PRICES_PREPROCESS, PRICES_CHAR
 
 with open("street.txt") as f:
     content = f.readlines()
@@ -240,13 +241,13 @@ def get_submit_image(image_path, annot_path):
     # day = list_bbox_str[index_day_bbox]
     # print(index_day_bbox)
     try:
-        output_dict[index_day_bbox] = [list_bbox_str[index_day_bbox], 'TIMESTAMPS']
+        output_dict[index_day_bbox] = [list_bbox_str[index_day_bbox], 'TIMESTAMP']
     except:
         print("Not found index!")
         pass
     
     # get prices
-    top_number = 20
+    top_number = 10
     prices_top = get_top_prices(list_number_prices, list_bbox_str, top_number)
     try:
         flag_found = False
@@ -269,8 +270,48 @@ def get_submit_image(image_path, annot_path):
                     break
             
             if flag==True:
-                prices = prefix_raw + '|||' + list_bbox_str[index_prices]
-                output_dict[index_prices] = [prices, 'TOTAL']
+                # preprocess
+                tmp = False
+                prices_value = list_bbox_str[index_prices]
+                for key, value in PRICES_CHAR.items():
+                    for ele in value:
+                        index = prices_value.find(ele)
+                        if index != -1:
+                            tmp = True
+                            prices_value = prices_value.replace(ele, key)
+                            break
+
+                    if tmp == True:
+                        break
+
+                print("########")
+                print("prefix: ", prefix_raw)
+                print("########")
+                list_prefix = prefix_raw.split()
+                for key, value in PRICES_PREPROCESS.items():
+                    for ele in value:
+                        for i in range(len(list_prefix)):
+                            char = list_prefix[i]
+                            if char == ele:
+                                list_prefix[i] = key
+                                break
+                
+                tmp = False
+                prefix_raw = ' '.join(map(str, list_prefix))
+                for key, value in PRICES_CHAR.items():
+                    for ele in value:
+                        index = prefix_raw.find(ele)
+                        if index != -1:
+                            tmp = True
+                            prefix_raw = prefix_raw.replace(ele, key)
+                            print("prefix: ", prefix_raw)
+                            break
+                            
+                    if tmp == True:
+                        break
+
+                prices = prefix_raw + '|||' + prices_value
+                output_dict[index_prices] = [prices, 'TOTAL_COST']
                 flag_found = True
                 break
         
@@ -292,8 +333,46 @@ def get_submit_image(image_path, annot_path):
                         break
                 
                 if flag==True:
-                    prices = prefix_raw + '|||' + list_bbox_str[index_prices]
-                    output_dict[index_prices] = [prices, 'TOTAL']
+                    # preprocess
+                    tmp = False
+                    prices_value = list_bbox_str[index_prices]
+                    for key, value in PRICES_CHAR.items():
+                        for ele in value:
+                            index = prices_value.find(ele)
+                            if index != -1:
+                                tmp = True
+                                prices_value = prices_value.replace(ele, key)
+                                break
+
+                        if tmp == True:
+                            break
+                    print("########")
+                    print("prefix: ", prefix_raw)
+                    print("########")
+                    list_prefix = prefix_raw.split()
+                    for key, value in PRICES_PREPROCESS.items():
+                        for ele in value:
+                            for i in range(len(list_prefix)):
+                                char = list_prefix[i]
+                                if char == ele:
+                                    list_prefix[i] = key
+                                    break
+                    
+                    tmp = False
+                    prefix_raw = ' '.join(map(str, list_prefix))
+                    for key, value in PRICES_CHAR.items():
+                        for ele in value:
+                            index = prefix_raw.find(ele)
+                            if index != -1:
+                                tmp = True
+                                prefix_raw = prefix_raw.replace(ele, key)
+                                break
+                                
+                        if tmp == True:
+                            break
+
+                    prices = prefix_raw + '|||' + prices_value
+                    output_dict[index_prices] = [prices, 'TOTAL_COST']
                     break
 
     except Exception as e:
@@ -347,7 +426,7 @@ def print_output(output_dict):
     return result_value, result_field
 
 if __name__ == "__main__":
-    name = "mcocr_public_145014xhzbt"
+    name = "mcocr_public_145014rczsi"
 
     annot_path = os.path.join('result_txt', name+".txt")
     image_path = os.path.join('train_images', name+".jpg")
@@ -357,3 +436,5 @@ if __name__ == "__main__":
     result_value, result_field = print_output(output_dict)
     print(result_value)
     print(result_field)
+
+ 

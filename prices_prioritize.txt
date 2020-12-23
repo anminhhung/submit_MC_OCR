@@ -7,6 +7,7 @@ tổng tiến phải thanh toàn
 tổng tiến phải t.toán
 tổng tiến phải t.toàn
 tổng tiến phải t toán
+tổng tiến phải t. toán
 tổng tiến phải t toàn
 tổng tiến phải trả
 tiền thanh toán
@@ -20,7 +21,4 @@ tổng số tiến thanh toán
 tổng số tiến thanh toàn
 tổng số thanh toán
 tổng số thanh toàn
-tổng cộng
-tổng công
-tông cộng
-tông công
+tổng tiền
