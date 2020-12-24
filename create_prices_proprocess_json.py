@@ -1,8 +1,17 @@
 import os 
 
+SELLER_PREPROCESS = {
+    "MINIMART ANAN": ["MINIMARTANAN"],
+}
+
+ADDRESS_PREPROCESS = {
+    "ĐC": ["ĐO", "Đ0"],
+    "đc": ["đo", "đ0"]
+}
+
 PRICES_PREPROCESS = {
-    "Tổng": ["Tổng", "Tông", "Tống", "Tồng", "Tỗng", "Tộng"],
-    "tổng": ["tổng", "tông", "tống", "tồng", "tỗng", "tộng"],
+    "Tổng": ["Tổng", "Tông", "Tống", "Tồng", "Tỗng", "Tộng", "Tổna"],
+    "tổng": ["tổng", "tông", "tống", "tồng", "tỗng", "tộng", "tổna"],
     "TỔNG": ["TỔNG", "TÔNG", "TỐNG", "TỒNG", "TỖNG", "TỘNG", "TĂNG"],
     "Cộng": ["Cộng", "Công", "Cồng", "Cỗng", "Cổng", "Cống"],
     "cộng": ["cộng", "công", "cồng", "cỗng", "cổng", "cống"],

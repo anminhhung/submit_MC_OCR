@@ -5,7 +5,9 @@ import os
 from collections import deque  
 from sklearn.metrics.pairwise import cosine_similarity
 import collections
-from create_prices_proprocess_json import PRICES_PREPROCESS, PRICES_CHAR, PREFIX_CHAR
+from recognizers_text import Culture, ModelResult
+from recognizers_date_time import DateTimeRecognizer
+from create_prices_proprocess_json import PRICES_PREPROCESS, PRICES_CHAR, PREFIX_CHAR, ADDRESS_PREPROCESS, SELLER_PREPROCESS
 
 with open("street.txt") as f:
     content = f.readlines()
@@ -26,6 +28,44 @@ LIST_PRICES_DEF = [x.strip() for x in content]
 with open("prices_prioritize.txt") as f:
     content = f.readlines()
 LIST_PRICES_PRIORITIZE_DEF = [x.strip() for x in content] 
+
+model = DateTimeRecognizer(Culture.English).get_datetime_model()
+
+def extractTimestamp(raw_input):
+    res = model.parse(raw_input)
+    res = [x for x in res if (len(x.text) != 4 or (not x.text.isdigit))]
+    res = [x for x in res if x.text!='thu' and (x.text[-1]!='p' or x.text[:-1].isdigit()==False)]
+    if len(res) == 0:
+        return None
+    st = res[0].start
+    en = res[-1].end 
+    result = raw_input[st : en + 1]
+    if any(map(str.isdigit, result)) == False:
+        return None
+    
+    prefix = raw_input[:st].split()
+    suffix = raw_input[en + 1:].split()
+
+    if len(prefix):
+        if any(map(str.isdigit, prefix[-1])):
+            result = prefix[-1] + ' ' + result
+            prefix = prefix[:-1]
+        ind = -1
+        if abs(ind) <= len(prefix) and (prefix[ind].upper() == 'NGÀY' or prefix[ind][-1] == ':'):
+            while abs(ind) < len(prefix) and prefix[ind][0].islower() or prefix[ind] == ':':
+                ind -= 1
+            result = ' '.join(prefix[ind:]) + ' ' + result
+
+    if len(suffix):
+        if any(map(str.isdigit, suffix[0])):
+            result = result + ' ' + suffix[0]
+            suffix = suffix[1:]
+        ind = 0
+        if ind < len(suffix) and suffix[ind][0] == '(':
+            while ind + 1 < len(suffix) and suffix[ind][-1] != ')':
+                ind += 1
+            result = result + ' ' + ' '.join(suffix[:ind])
+    return result.replace('thu','').strip() if len(result) > 4 else None
 
 def draw_box(image, bbox, color=(0,0,255)):
     # pts = np.array([[xs_af[0],ys_af[0]],[xs_af[1],ys_af[1]],[xs_af[2],ys_af[2]],[xs_af[3],ys_af[3]]], np.int32)
@@ -113,6 +153,11 @@ def get_day(list_bbox_char, list_bbox_str):
         if len(list_bbox_str[i]) < 10: # > 1ty
             list_bbox_str[i] = list_bbox_str[i].replace(",", ".")
             list_number_prices.append(i)
+            
+        if list_bbox_str[i].find(":") != -1:
+            value = list_bbox_str[i].split(":")[1]
+            if len(value) < 10: 
+                list_number_prices.append(i)
 
         bbox = list_bbox_char[i]
         for content in bbox:
@@ -122,7 +167,20 @@ def get_day(list_bbox_char, list_bbox_str):
                 # print(list_bbox_str[i])
                 index = i 
     
-    return list_number_prices, index
+    # chay cua cuong` 
+    res = []
+    flag = False
+    for i in range(len(list_bbox_char)):
+        bbox = list_bbox_char[i]
+        for content in bbox:
+            result = extractTimestamp(content)
+            if result != None:
+                flag = True
+                res.append(i)
+    
+    # cuong_result = '|||'.join(res)
+
+    return list_number_prices, index, flag, res
 
 def get_top_prices(list_number_prices, list_bbox_str, top=5):
     prices_top = deque([], top) # lấy top 1 trước có gì rồi sửa lại lấy top k 
@@ -130,7 +188,8 @@ def get_top_prices(list_number_prices, list_bbox_str, top=5):
     max_number = 0.0
     print(list_bbox_str)
     list_char_prices = ['d', 'đ', 'Đ', 'D', 'đồng']
-
+    check_has_onecolumn = False
+    true_index = 0
     for i in list_number_prices:
         # prices = 0
         print("i: ", i)
@@ -140,6 +199,33 @@ def get_top_prices(list_number_prices, list_bbox_str, top=5):
             #     continue
             
             prices = list_bbox_str[i]
+            # check 1 column
+            if prices.find(":") != -1:
+                prices = prices.split(":")
+                print("prices in 1 column: ", prices)
+                prefix = prices[0]
+                value = prices[1]
+                print("type value: {}, type prefix: {}".format(type(value), type(prefix)))
+                for char_price in list_char_prices:
+                    if value.find(char_price) != -1:
+                        value = value.replace(char_price, '')
+                    index = value.find(" ")
+
+                    if index != -1:
+                        value = value.replace(" ", ".")
+
+                    if value.find(".", index+1) != -1:
+                        value = value.replace(".", "")
+                    
+                value = float(value)
+                print("value: ", value)
+
+                if value >=50:
+                    check_has_onecolumn = True
+                    true_index = i
+                    return prices_top, check_has_onecolumn, true_index
+
+
             print("prices: ", prices)
             for char_price in list_char_prices:
                 if prices.find(char_price) != -1:
@@ -149,15 +235,17 @@ def get_top_prices(list_number_prices, list_bbox_str, top=5):
                     prices = prices.replace(" ", ".")
                 if prices.find(".", index+1) != -1:
                     prices = prices.replace(".", "")
+                        
 
             prices = float(prices)
 
-            if prices >= max_number:
-                max_number = prices
-                prices_top.append(i)
-            else:
-                if prices > 0:
-                    backup_arr[i] = prices
+            if prices >= 50.0:
+                if prices >= max_number:
+                    max_number = prices
+                    prices_top.append(i)
+                else:
+                    if prices > 0:
+                        backup_arr[i] = prices
         except Exception as e:
             print("bug in get top prices: ", e)
             pass # string not number!
@@ -171,7 +259,8 @@ def get_top_prices(list_number_prices, list_bbox_str, top=5):
             prices_top.append(key)
             i += 1
     print("prices top: ", prices_top)
-    return prices_top
+
+    return prices_top, check_has_onecolumn, true_index
 
 def get_prices(height_img, width_img, prices_box, list_bbox, list_bbox_str):
     # check parallel
@@ -240,88 +329,81 @@ def get_submit_image(image_path, annot_path):
     list_bbox, list_bbox_char, list_bbox_str = get_list_bbox(annot_path)
     
     # get day
-    list_number_prices, index_day_bbox = get_day(list_bbox_char, list_bbox_str)
+    list_number_prices, index_day_bbox, flag, cuong_result= get_day(list_bbox_char, list_bbox_str)
     # day = list_bbox_str[index_day_bbox]
     # print(index_day_bbox)
-    try:
-        output_dict[index_day_bbox] = [list_bbox_str[index_day_bbox], 'TIMESTAMP']
-    except:
-        print("Not found index!")
-        pass
+    if flag == True:
+        try:
+            cnt = 0
+            for i in cuong_result:
+                day = list_bbox_str[i]
+                output_dict[9991+cnt] = [day, 'TIMESTAMP']
+                cnt += 1
+        except:
+            print("Not found index!")
+            pass
+    else:
+        try:
+            output_dict[index_day_bbox] = [list_bbox_str[index_day_bbox], 'TIMESTAMP']
+        except:
+            print("Not found index!")
+            pass
     
     # get prices
     top_number = 20
-    prices_top = get_top_prices(list_number_prices, list_bbox_str, top_number)
-    try:
-        flag_found = False
-        for i in range(len(prices_top)):
-            index_prices = prices_top[i]
-            prices_box = list_bbox[index_prices]
-            prices = list_bbox_str[index_prices]
-            index_string_prices = get_prices(height, width, prices_box, list_bbox, list_bbox_str)
-            
-            prefix_raw = list_bbox_str[index_string_prices]
-            prefix = prefix_raw.lower()
-            #  kiem tra list prices uu tien
-            flag = False
-            print("prefix: ", prefix)
-            print("prices: ", list_bbox_str[index_prices])
-            for word in LIST_PRICES_PRIORITIZE_DEF:
-                # print("prefix in PRIORITIZE: ", prefix)
-                if prefix.find(word) != -1:
-                    flag = True
+    prices_top, check_has_onecolumn, true_index = get_top_prices(list_number_prices, list_bbox_str, top_number)
+    if check_has_onecolumn:
+        print("Has 1 column")
+        prices = list_bbox_str[true_index].split(":")
+        prefix_raw = prices[0]
+        prices_value = prices[1]
+
+        # preprocess value
+        tmp = False
+        for key, value in PRICES_CHAR.items():
+            for ele in value:
+                index = prices_value.find(ele)
+                if index != -1:
+                    tmp = True
+                    prices_value = prices_value.replace(ele, key)
+                    print("prices_value: ", prices_value)
                     break
-            
-            if flag==True:
-                # preprocess
-                tmp = False
-                prices_value = list_bbox_str[index_prices]
-                for key, value in PRICES_CHAR.items():
-                    for ele in value:
-                        index = prices_value.find(ele)
-                        if index != -1:
-                            tmp = True
-                            prices_value = prices_value.replace(ele, key)
-                            print("prices_value: ", prices_value)
-                            break
 
-                    if tmp == True:
-                        break
-
-                print("########")
-                print("prefix: ", prefix_raw)
-                print("########")
-                list_prefix = prefix_raw.split()
-                for key, value in PRICES_PREPROCESS.items():
-                    for ele in value:
-                        for i in range(len(list_prefix)):
-                            char = list_prefix[i]
-                            if char == ele:
-                                list_prefix[i] = key
-                                break
-                
-                tmp = False
-                prefix_raw = ' '.join(map(str, list_prefix))
-                for key, value in PREFIX_CHAR.items():
-                    for ele in value:
-                        index = prefix_raw.find(ele)
-                        if index != -1:
-                            tmp = True
-                            prefix_raw = prefix_raw.replace(ele, key)
-                            print("prefix: ", prefix_raw)
-                            break
-                            
-                    if tmp == True:
-                        break
-                
-                print("index prices: ", index_prices)
-                prices = prefix_raw + '|||' + prices_value
-                output_dict[index_prices] = [prefix_raw, 'TOTAL_COST']
-                output_dict[index_prices*100] = [prices_value, 'TOTAL_COST']
-                flag_found = True
+            if tmp == True:
                 break
         
-        if flag_found == False:
+        # preprocess prefix
+        list_prefix = prefix_raw.split()
+        # print("list prefix: ", list_prefix)
+        for key, value in PRICES_PREPROCESS.items():
+            for ele in value:
+                for i in range(len(list_prefix)):
+                    char = list_prefix[i]
+                    if char == ele:
+                        list_prefix[i] = key
+                        break
+        
+        tmp = False
+        prefix_raw = ' '.join(map(str, list_prefix))
+        print("prefix_raw: ", prefix_raw)
+        for key, value in PREFIX_CHAR.items():
+            for ele in value:
+                index = prefix_raw.find(ele)
+                if index != -1:
+                    tmp = True
+                    prefix_raw = prefix_raw.replace(ele, key)
+                    break
+                    
+            if tmp == True:
+                break
+        # print("prefix_raw: ", prefix_raw)
+        prices = prefix_raw + '|||' + prices_value
+        output_dict[true_index] = [prefix_raw, 'TOTAL_COST']
+        output_dict[true_index*100] = [prices_value, 'TOTAL_COST']
+
+    else:
+        try:
+            flag_found = False
             for i in range(len(prices_top)):
                 index_prices = prices_top[i]
                 prices_box = list_bbox[index_prices]
@@ -330,10 +412,12 @@ def get_submit_image(image_path, annot_path):
                 
                 prefix_raw = list_bbox_str[index_string_prices]
                 prefix = prefix_raw.lower()
-                # neu ko co trong list uu tien thi kiem tra list prices chung
+                #  kiem tra list prices uu tien
                 flag = False
-                for word in LIST_PRICES_DEF:
-                    # print("prefix in prices def: ", prefix)
+                print("prefix: ", prefix)
+                print("prices: ", list_bbox_str[index_prices])
+                for word in LIST_PRICES_PRIORITIZE_DEF:
+                    # print("prefix in PRIORITIZE: ", prefix)
                     if prefix.find(word) != -1:
                         flag = True
                         break
@@ -353,11 +437,11 @@ def get_submit_image(image_path, annot_path):
 
                         if tmp == True:
                             break
+
                     print("########")
                     print("prefix: ", prefix_raw)
                     print("########")
                     list_prefix = prefix_raw.split()
-                    # print("list prefix: ", list_prefix)
                     for key, value in PRICES_PREPROCESS.items():
                         for ele in value:
                             for i in range(len(list_prefix)):
@@ -368,27 +452,93 @@ def get_submit_image(image_path, annot_path):
                     
                     tmp = False
                     prefix_raw = ' '.join(map(str, list_prefix))
-                    # print("prefix_raw: ", prefix_raw)
                     for key, value in PREFIX_CHAR.items():
                         for ele in value:
                             index = prefix_raw.find(ele)
                             if index != -1:
                                 tmp = True
                                 prefix_raw = prefix_raw.replace(ele, key)
+                                print("prefix: ", prefix_raw)
                                 break
                                 
                         if tmp == True:
                             break
-                    # print("prefix_raw: ", prefix_raw)
+                    
+                    print("index prices: ", index_prices)
                     prices = prefix_raw + '|||' + prices_value
                     output_dict[index_prices] = [prefix_raw, 'TOTAL_COST']
                     output_dict[index_prices*100] = [prices_value, 'TOTAL_COST']
+                    flag_found = True
                     break
+            
+            if flag_found == False:
+                for i in range(len(prices_top)):
+                    index_prices = prices_top[i]
+                    prices_box = list_bbox[index_prices]
+                    prices = list_bbox_str[index_prices]
+                    index_string_prices = get_prices(height, width, prices_box, list_bbox, list_bbox_str)
+                    
+                    prefix_raw = list_bbox_str[index_string_prices]
+                    prefix = prefix_raw.lower()
+                    # neu ko co trong list uu tien thi kiem tra list prices chung
+                    flag = False
+                    for word in LIST_PRICES_DEF:
+                        # print("prefix in prices def: ", prefix)
+                        if prefix.find(word) != -1:
+                            flag = True
+                            break
+                    
+                    if flag==True:
+                        # preprocess
+                        tmp = False
+                        prices_value = list_bbox_str[index_prices]
+                        for key, value in PRICES_CHAR.items():
+                            for ele in value:
+                                index = prices_value.find(ele)
+                                if index != -1:
+                                    tmp = True
+                                    prices_value = prices_value.replace(ele, key)
+                                    print("prices_value: ", prices_value)
+                                    break
 
-    except Exception as e:
-        print(e)
-        print("Not found index!")
-        pass
+                            if tmp == True:
+                                break
+                        print("########")
+                        print("prefix: ", prefix_raw)
+                        print("########")
+                        list_prefix = prefix_raw.split()
+                        # print("list prefix: ", list_prefix)
+                        for key, value in PRICES_PREPROCESS.items():
+                            for ele in value:
+                                for i in range(len(list_prefix)):
+                                    char = list_prefix[i]
+                                    if char == ele:
+                                        list_prefix[i] = key
+                                        break
+                        
+                        tmp = False
+                        prefix_raw = ' '.join(map(str, list_prefix))
+                        # print("prefix_raw: ", prefix_raw)
+                        for key, value in PREFIX_CHAR.items():
+                            for ele in value:
+                                index = prefix_raw.find(ele)
+                                if index != -1:
+                                    tmp = True
+                                    prefix_raw = prefix_raw.replace(ele, key)
+                                    break
+                                    
+                            if tmp == True:
+                                break
+                        # print("prefix_raw: ", prefix_raw)
+                        prices = prefix_raw + '|||' + prices_value
+                        output_dict[index_prices] = [prefix_raw, 'TOTAL_COST']
+                        output_dict[index_prices*100] = [prices_value, 'TOTAL_COST']
+                        break
+
+        except Exception as e:
+            print(e)
+            print("Not found index!")
+            pass
 
     # get street
     try:
@@ -396,7 +546,19 @@ def get_submit_image(image_path, annot_path):
         # street = ' '.join(list_street)
         # print(list_index_street)
         for index_street in list_index_street:
-            output_dict[index_street] = [list_bbox_str[index_street], 'ADDRESS']
+            list_street = list_bbox_str[index_street]
+            list_street = list_street.split()
+            print("list street: ", list_street)
+            for key, value in ADDRESS_PREPROCESS.items():
+                for ele in value:
+                    for i in range(len(list_street)):
+                        char = list_street[i]
+                        if char == ele:
+                            list_street[i] = key
+                            break
+
+            list_street = ' '.join(map(str, list_street))
+            output_dict[index_street] = [list_street, 'ADDRESS']
     except:
         print("Not found index!")
         pass
@@ -436,7 +598,7 @@ def print_output(output_dict):
     return result_value, result_field
 
 if __name__ == "__main__":
-    name = "mcocr_val_145115waven"
+    name = "mcocr_val_145115itmlf"
 
     annot_path = os.path.join('result_txt', name+".txt")
     image_path = os.path.join('upload', name+".jpg")

@@ -29,6 +29,7 @@ công tiến hàng
 công tiền hàng
 tiền khách trả
 tiên khách trả
+tiến khách trả
 tiến mặt
 tăng tiến phái t. toán
 tại quầy
@@ -36,3 +37,4 @@ tai quay
 tại quây
 tai quây
 tại quáy.
+tổna

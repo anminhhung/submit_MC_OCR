@@ -1,7 +1,44 @@
 import re 
 
-date = '2018/7/12'
+def get_list_bbox(file_path):
+    with open(file_path) as f:
+        content = f.readlines()
 
-x = re.search("^\d\d\d\d/(0?[1-9]|1[0-2])/(0?[1-9]|[12][0-9]|3[01]) (00|[0-9]|1[0-9]|2[0-3]):([0-9]|[0-5][0-9]):([0-9]|[0-5][0-9])$", date)
-if x ==None:
-    print(True)
+    list_bbox = []
+    list_bbox_char = []
+    list_bbox_str = []
+    content = [x.strip() for x in content]
+    for ele in content:
+        bbox_str = ele.split(" ",8)[-1]
+        ele = ele.split()
+        i = 0
+        bbox = []
+        while(i<8):
+            xs = int(ele[i])
+            ys = int(ele[i+1])
+            point = [xs, ys]
+            bbox.append(point)
+
+            i += 2
+        
+        bbox_char = ele[8:]
+        list_bbox_char.append(bbox_char)
+        list_bbox.append(bbox)
+        list_bbox_str.append(bbox_str)
+    
+    return list_bbox, list_bbox_char, list_bbox_str
+
+
+list_bbox, list_bbox_char, list_bbox_str = get_list_bbox('result_txt/mcocr_val_145114anqqj.txt')
+
+cnt_max = 0
+date_str = ''
+for i in range(len(list_bbox_str)):
+    string = list_bbox_str[i]
+    cnt = string.count('-')
+    if cnt > cnt_max:
+        cnt_max = cnt
+        if cnt >= 2:
+            date_str = string
+
+print(date_str)
