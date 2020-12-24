@@ -1,10 +1,12 @@
 import cv2
 import numpy as np
 import re
+import pandas as pd
 import os
 from collections import deque  
 from sklearn.metrics.pairwise import cosine_similarity
 import collections
+from tqdm import tqdm
 from recognizers_text import Culture, ModelResult
 from recognizers_date_time import DateTimeRecognizer
 from create_prices_proprocess_json import PRICES_PREPROCESS, PRICES_CHAR, PREFIX_CHAR, ADDRESS_PREPROCESS, SELLER_PREPROCESS
@@ -597,15 +599,65 @@ def print_output(output_dict):
     
     return result_value, result_field
 
+def get_output(output_dict):
+    list_value = []
+    list_field = []
+    for key, value in output_dict.items():
+        list_value.append(value[0])
+        list_field.append(value[1])
+    
+    # result_value = '|||'.join(list_value)
+    # result_field = '|||'.join(list_field)
+    
+    return list_value, list_field
+
+def create_result(task1_csv_path='results.csv'):
+    # -------------------------
+    # Argument
+    # task1_csv_path: path of task 1 csv
+    # -------------------------
+    dtf = pd.read_csv(task1_csv_path)
+    field_rank = {
+        'SELLER' : 1,
+        'ADDRESS' : 2,
+        'TIMESTAMP' : 3,
+        'TOTAL_COST' : 4
+    }
+
+    res = []
+    for key, row in dtf.iterrows():
+        name = row['img_id']
+        name = name.split(".")[0]
+        annot_path = os.path.join('result_txt', name+".txt")
+        image_path = os.path.join('upload', name+".jpg")
+
+        output_dict = get_submit_image(image_path, annot_path)
+        field_value, field_name = get_output(output_dict)
+        print(field_name)
+        print(field_value)
+        field = list(zip(field_value, field_name))
+        field.sort(key = lambda x: field_rank[x[1]])
+        res.append('|||'.join([str(x[0]) for x in field]))
+
+    dtf['anno_texts'] = res
+    if not os.path.exists("submit"):
+        os.mkdir("submit")
+
+    pd.to_csv(os.path.join('submit', 'results.csv'))
+
 if __name__ == "__main__":
-    name = "mcocr_val_145115itmlf"
+    # submit
+        create_result()
 
-    annot_path = os.path.join('result_txt', name+".txt")
-    image_path = os.path.join('upload', name+".jpg")
+    # name = "mcocr_val_145115nyxzm"
 
-    output_dict = get_submit_image(image_path, annot_path)
-    result_value, result_field = print_output(output_dict)
-    print(result_value)
-    print(result_field)
+    # annot_path = os.path.join('result_txt', name+".txt")
+    # image_path = os.path.join('upload', name+".jpg")
+
+    # output_dict = get_submit_image(image_path, annot_path)
+    # result_value, result_field = print_output(output_dict)
+    # print(result_value)
+    # print(result_field)
+    # print(output_dict)
 
  
