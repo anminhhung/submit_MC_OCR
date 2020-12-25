@@ -10,9 +10,9 @@ ADDRESS_PREPROCESS = {
 }
 
 PRICES_PREPROCESS = {
-    "Tổng": ["Tổng", "Tông", "Tống", "Tồng", "Tỗng", "Tộng", "Tổna"],
+    "Tổng": ["Tổng", "Tông", "Tống", "Tồng", "Tỗng", "Tộng", "Tổna", "tiền mặt"],
     "tổng": ["tổng", "tông", "tống", "tồng", "tỗng", "tộng", "tổna"],
-    "TỔNG": ["TỔNG", "TÔNG", "TỐNG", "TỒNG", "TỖNG", "TỘNG", "TĂNG"],
+    "TỔNG": ["TỔNG", "TÔNG", "TỐNG", "TỒNG", "TỖNG", "TỘNG", "TĂNG", "CHI"],
     "Cộng": ["Cộng", "Công", "Cồng", "Cỗng", "Cổng", "Cống"],
     "cộng": ["cộng", "công", "cồng", "cỗng", "cổng", "cống"],
     "cộng:": ["cộng:", "công:", "cồng:", "cỗng", "cổng:", "cống:"],
@@ -21,15 +21,14 @@ PRICES_PREPROCESS = {
     "Tiền": ["Tiền", "Tiến", "Tiên", "Tiển", "Tiễn", "Tiện"],
     "TIỀN": ["TIỀN", "TIẾN", "TIÊN", "TIỂN", "TIỄN", "TIỆN"],
     "TOÁN": ["TOÁN", "TOAN", "TOÀN", "TOẢN", "TOÃN", "TOẠN"],
-    "Total": ["Total", "Sub Total", "sub total"],
-    "": ["2", "1"],
+    "Total": ["Total", "Sub Total", "sub total", "Gross Total"],
+    "": ["2", "1", "THÁN"],
     "Tong": ["Tong", "Tonn", "Tono"],
     "quầy": ["quáy.", "quáy", "quây"],
     "QUẦY": ["QUÁY.", "QUÁY", "QUÂY"]
 }
 
 PRICES_CHAR = {
-    ":": [":", ",", ";"],
     "VAT": ["VAT", "vat"],
     "đ": ["d", "đ"],
     "Đ": ["D", "Đ"],

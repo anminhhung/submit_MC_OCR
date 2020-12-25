@@ -152,7 +152,7 @@ def get_day(list_bbox_char, list_bbox_str):
     list_number_prices = []
     index = None
     for i in range(len(list_bbox_char)):
-        if len(list_bbox_str[i]) < 10: # > 1ty
+        if len(list_bbox_str[i]) < 12: # > 100ty
             list_bbox_str[i] = list_bbox_str[i].replace(",", ".")
             list_number_prices.append(i)
             
@@ -178,7 +178,8 @@ def get_day(list_bbox_char, list_bbox_str):
             result = extractTimestamp(content)
             if result != None:
                 flag = True
-                res.append(i)
+                if i not in res:
+                    res.append(i)
     
     # cuong_result = '|||'.join(res)
 
@@ -215,18 +216,28 @@ def get_top_prices(list_number_prices, list_bbox_str, top=5):
 
                     if index != -1:
                         value = value.replace(" ", ".")
+                    
+                    if value.find(",") != -1:
+                        value = value.replace(",", "")
 
                     if value.find(".", index+1) != -1:
                         value = value.replace(".", "")
                     
+                    
                 value = float(value)
                 print("value: ", value)
+                
+                if value >=50.0:
+                    # if prefix in 2 two list => return
+                    if prefix in LIST_PRICES_PRIORITIZE_DEF:    
+                        check_has_onecolumn = True
+                        true_index = i
+                        return prices_top, check_has_onecolumn, true_index
 
-                if value >=50:
-                    check_has_onecolumn = True
-                    true_index = i
-                    return prices_top, check_has_onecolumn, true_index
-
+                    if prefix in LIST_PRICES_DEF:
+                        check_has_onecolumn = True
+                        true_index = i
+                        return prices_top, check_has_onecolumn, true_index
 
             print("prices: ", prices)
             for char_price in list_char_prices:
@@ -245,21 +256,28 @@ def get_top_prices(list_number_prices, list_bbox_str, top=5):
                 if prices >= max_number:
                     max_number = prices
                     prices_top.append(i)
+                    print("prices_top: ", prices_top)
                 else:
                     if prices > 0:
                         backup_arr[i] = prices
         except Exception as e:
             print("bug in get top prices: ", e)
             pass # string not number!
-        
+    
+    print("prices top before append phamn bu`: ", prices_top)
     # them phan bu` cho du top5
-    backup_arr = {k: v for k, v in sorted(backup_arr.items(), key=lambda item: item[1])}
+    backup_arr = {k: v for k, v in sorted(backup_arr.items(), key=lambda item: item[1], reverse=True)}
+    print("backup_arr: ", backup_arr)
+    print("len backup arr: ", len(backup_arr))
     number_missed = top - len(prices_top)
+    print("number_missed: ", number_missed)
     if number_missed > 0:
         i = 0
         for key, value in backup_arr.items():
-            prices_top.append(key)
-            i += 1
+            if i <= number_missed:
+                prices_top.append(key)
+                i += 1
+
     print("prices top: ", prices_top)
 
     return prices_top, check_has_onecolumn, true_index
@@ -284,11 +302,12 @@ def get_prices(height_img, width_img, prices_box, list_bbox, list_bbox_str):
 
     return bbox_index
 
-def get_index_street(list_bbox_str, number_line=4):
+def get_index_street(list_bbox_str, number_line=6):
     list_street = []
-    print(len(list_bbox_str))
+    print("Get index_streeet")
     for i in range(number_line):
         content = list_bbox_str[i].lower()
+        print("content: ", content)
         for word in LIST_STREET_DEF:
             if content.find(word) != -1:
                 flag = False
@@ -298,6 +317,7 @@ def get_index_street(list_bbox_str, number_line=4):
                         break 
                 if flag == False:
                     if i not in list_street:
+                        print("content in list street: ", content)
                         list_street.append(i)
                         break
 
@@ -337,6 +357,7 @@ def get_submit_image(image_path, annot_path):
     if flag == True:
         try:
             cnt = 0
+            print("CUong result: ", cuong_result)
             for i in cuong_result:
                 day = list_bbox_str[i]
                 output_dict[9991+cnt] = [day, 'TIMESTAMP']
@@ -647,17 +668,17 @@ def create_result(task1_csv_path='results.csv'):
 
 if __name__ == "__main__":
     # submit
-        create_result()
+        # create_result()
 
-    # name = "mcocr_val_145115nyxzm"
+    name = "mcocr_val_145115lwyzw"
 
-    # annot_path = os.path.join('result_txt', name+".txt")
-    # image_path = os.path.join('upload', name+".jpg")
+    annot_path = os.path.join('result_txt', name+".txt")
+    image_path = os.path.join('upload', name+".jpg")
 
-    # output_dict = get_submit_image(image_path, annot_path)
-    # result_value, result_field = print_output(output_dict)
-    # print(result_value)
-    # print(result_field)
+    output_dict = get_submit_image(image_path, annot_path)
+    result_value, result_field = print_output(output_dict)
+    print(result_value)
+    print(result_field)
     # print(output_dict)
 
  

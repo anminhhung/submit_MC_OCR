@@ -11,6 +11,10 @@ thành tiến
 thanh tiến
 thành tiên
 thanh tiên
+Thành tiên
+Thành tiền
+Thanh tiên
+Thanh tiền
 tổng tiền
 tống tiến
 tống tiền
@@ -37,4 +41,11 @@ tai quay
 tại quây
 tai quây
 tại quáy.
+số thanh toán
+sô thanh toan
+số thanh toan
+số thanh toàn
+sô thanh toàn
 tổna
+chi
+tiền mặt
