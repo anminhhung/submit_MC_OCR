@@ -362,7 +362,7 @@ def get_submit_image(image_path, annot_path):
             print("CUong result: ", cuong_result)
             for i in cuong_result:
                 day = list_bbox_str[i]
-                output_dict[9991+cnt] = [day, 'TIMESTAMP']
+                output_dict[331+cnt] = [day, 'TIMESTAMP']
                 cnt += 1
         except:
             print("Not found index!")
@@ -423,8 +423,8 @@ def get_submit_image(image_path, annot_path):
                 break
         # print("prefix_raw: ", prefix_raw)
         prices = prefix_raw + '|||' + prices_value
-        output_dict[true_index] = [prefix_raw, 'TOTAL_COST']
-        output_dict[true_index*100] = [prices_value, 'TOTAL_COST']
+        output_dict[777] = [prefix_raw, 'TOTAL_COST']
+        output_dict[778] = [prices_value, 'TOTAL_COST']
 
     else:
         try:
@@ -491,8 +491,8 @@ def get_submit_image(image_path, annot_path):
                     
                     print("index prices: ", index_prices)
                     prices = prefix_raw + '|||' + prices_value
-                    output_dict[index_prices] = [prefix_raw, 'TOTAL_COST']
-                    output_dict[index_prices*100] = [prices_value, 'TOTAL_COST']
+                    output_dict[777] = [prefix_raw, 'TOTAL_COST']
+                    output_dict[778] = [prices_value, 'TOTAL_COST']
                     flag_found = True
                     break
             
@@ -556,8 +556,8 @@ def get_submit_image(image_path, annot_path):
                                 break
                         # print("prefix_raw: ", prefix_raw)
                         prices = prefix_raw + '|||' + prices_value
-                        output_dict[index_prices] = [prefix_raw, 'TOTAL_COST']
-                        output_dict[index_prices*100] = [prices_value, 'TOTAL_COST']
+                        output_dict[777] = [prefix_raw, 'TOTAL_COST']
+                        output_dict[778] = [prices_value, 'TOTAL_COST']
                         break
 
         except Exception as e:
@@ -606,7 +606,7 @@ def get_submit_image(image_path, annot_path):
                         break
         
         list_name = ' '.join(map(str, list_name))
-        output_dict[index_name] = [list_name, 'SELLER']
+        output_dict[0] = [list_name, 'SELLER']
     except:
         print("Not found index!")
         pass
@@ -686,7 +686,7 @@ if __name__ == "__main__":
     # submit
         # create_result()
 
-    name = "mcocr_val_145115limjy"
+    name = "mcocr_val_145115akhkf"
 
     annot_path = os.path.join('result_txt', name+".txt")
     image_path = os.path.join('upload', name+".jpg")
