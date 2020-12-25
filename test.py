@@ -1,12 +1,15 @@
 import os
+from submit import extractTimestamp
 
-with open("results.txt") as f:
-    content = f.readlines()
-# you may also want to remove whitespace characters like `\n` at the end of each line
-content = [x.strip() for x in content] 
+my_string = "Số GD: 000AB2212008002615 Ngày: 10/08/2020-18:22 thuy nha"
 
-new_file = "new_results.txt"
-with open(new_file, "a+") as f:
-    for i in content:
-        i = i.replace('"', '')
-        f.write("{}\n".format(i))
+my_string = my_string.split()
+for content in my_string:
+    print("content: ", content)
+    print("type: ", type(content))
+    try:
+        res = extractTimestamp(my_string)
+        print(res)
+    except Exception as e:
+        print("bug in preprocess time: ", e)
+        print("Guess Content Not Time")

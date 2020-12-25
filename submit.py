@@ -327,20 +327,22 @@ def get_index_name(list_bbox_str, number_line=4):
     for i in range(number_line):
         flag = False
         content = list_bbox_str[i].lower()
+        print("content in get index name: ", content)
         for word in LIST_STREET_DEF:
             if content.find(word) != -1:
                 flag = True
                 break
         
         if flag == False:
+            print("index name: ", i)
             return i
 
-def get_index_seller(list_bbox_str):
-    for i in range(len(list_bbox_str)):
-        content = list_bbox_str[i].lower()
-        for word in LIST_SELLER_DEF:
-            if content.find(word) != -1:
-                return i
+# def get_index_seller(list_bbox_str):
+#     for i in range(len(list_bbox_str)):
+#         content = list_bbox_str[i].lower()
+#         for word in LIST_SELLER_DEF:
+#             if content.find(word) != -1:
+#                 return i
 
 def get_submit_image(image_path, annot_path):
     output_dict = {}
@@ -590,12 +592,26 @@ def get_submit_image(image_path, annot_path):
     index_name = get_index_name(list_bbox_str)
     # print(index_name)
     try:
-        output_dict[index_name] = [list_bbox_str[index_name], 'SELLER']
+        list_name = list_bbox_str[index_name]
+        print("list_name: ", list_name)
+        list_name = list_name.split()
+        for key, value in SELLER_PREPROCESS.items():
+            print("key: {}, value: {}".format(key, value))
+            for ele in value:
+                for i in range(len(list_name)):
+                    char = list_name[i]
+                    if char == ele:
+                        list_name[i] = key
+                        print("key: ", key)
+                        break
+        
+        list_name = ' '.join(map(str, list_name))
+        output_dict[index_name] = [list_name, 'SELLER']
     except:
         print("Not found index!")
         pass
 
-    # # get seller
+    # get seller
     # index_seller = get_index_seller(list_bbox_str)
     # try:
     #     output_dict[index_seller] = [list_bbox_str[index_seller], 'SELLER']
@@ -670,7 +686,7 @@ if __name__ == "__main__":
     # submit
         # create_result()
 
-    name = "mcocr_val_145115lwyzw"
+    name = "mcocr_val_145115limjy"
 
     annot_path = os.path.join('result_txt', name+".txt")
     image_path = os.path.join('upload', name+".jpg")

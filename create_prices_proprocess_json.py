@@ -2,6 +2,7 @@ import os
 
 SELLER_PREPROCESS = {
     "MINIMART ANAN": ["MINIMARTANAN"],
+    "PHỐ": ["PHÓ"]
 }
 
 ADDRESS_PREPROCESS = {
