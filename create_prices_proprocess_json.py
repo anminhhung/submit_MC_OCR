@@ -26,7 +26,7 @@ ADDRESS_PREPROCESS = {
     "QNH": ["ONH", "NHI", "VIN4", "VIH"],
     "+": ["?", "4"],
     "VM+": ["VIÀ", "VM4", "VIM", "VM", "VINT", "MMA", "VINH"],
-    "Phú": ["Phủ"],
+    "Phú": ["Phủ", "Phý"],
     "Niên": ["Nien"],
     "Số": ["shi", "Só"],
     "QN": ["ON", "GN"],
@@ -36,7 +36,8 @@ ADDRESS_PREPROCESS = {
     "TỔ": ["TỐ"],
     "P.": ["A."],
     "Q.Nam": ["0.Nam"],
-    "P.Cầm": ["PhCầm"]
+    "P.Cầm": ["PhCầm"],
+    "Thuỵ": ["Thuy"]
 }
 
 TIME_PREPROCESS = {
@@ -72,7 +73,7 @@ PRICES_CHAR = {
 }
 
 PREFIX_CHAR = {
-    ":": [":", ",", ";", "."],
+    ":": [":", ",", ";"],
     "VAT": ["VAT", "vat"],
     "đ": ["d", "đ"],
     "Đ": ["D", "Đ"],

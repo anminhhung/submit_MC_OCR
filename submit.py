@@ -337,6 +337,23 @@ def get_top_prices(list_number_prices, list_bbox_str, top=5):
 
     return prices_top, check_has_onecolumn, true_index
 
+def get_street(height_img, width_img, name_box, list_bbox, list_index_street):
+    list_cosine = []
+    list_index_cosine = []
+    vector_gt = get_vector((0, height_img), (width_img, height_img))
+    center_name_box = get_center(name_box)
+    for i in range(len(list_index_street)):
+        bbox = list_bbox[i]
+        center_bbox = get_center(bbox)
+        vector_street_bbox = get_vector(center_bbox, center_name_box)
+        cosine = compute_cosine(vector_street_bbox, vector_gt)
+        list_cosine.append(cosine)
+        list_index_cosine.append(i)
+    
+    bbox_index = get_index_cosine(list_cosine, list_index_cosine)
+
+    return bbox_index
+
 def get_prices(height_img, width_img, prices_box, list_bbox, list_bbox_str):
     # check parallel
     list_cosine = []
@@ -650,7 +667,7 @@ def get_submit_image(image_path, annot_path):
     # get name
     index_name = get_index_name(list_bbox_str)
     # print(index_name)
-    field_name = None
+    name_bbox = None
     try:
         list_name = list_bbox_str[index_name]
         print("list_name: ", list_name)
@@ -666,7 +683,7 @@ def get_submit_image(image_path, annot_path):
                         break
         
         list_name = ' '.join(map(str, list_name))
-        field_name = list_name
+        name_bbox = list_bbox[index_name]
         output_dict[0] = [list_name, 'SELLER']
     except:
         print("Not found index!")
@@ -675,11 +692,24 @@ def get_submit_image(image_path, annot_path):
     # get street
     try:
         list_index_street = get_index_street(list_bbox_str)
-        # street = ' '.join(list_street)
-        # print(list_index_street)
-        cnt = 0 
-        for index_street in list_index_street:
-            list_street = list_bbox_str[index_street]
+        
+        # cnt = 0 
+        # for index_street in list_index_street:
+        #     list_street = list_bbox_str[index_street]
+        #     list_street = list_street.split()
+        #     print("list street: ", list_street)
+        #     for key, value in ADDRESS_PREPROCESS.items():
+        #         for ele in value:
+        #             for i in range(len(list_street)):
+        #                 char = list_street[i]
+        #                 if char == ele:
+        #                     list_street[i] = key
+        #                     break
+
+        #     list_street = ' '.join(map(str, list_street))
+
+        if len(list_index_street) == 1:
+            list_street = list_bbox_str[list_index_street[0]]
             list_street = list_street.split()
             print("list street: ", list_street)
             for key, value in ADDRESS_PREPROCESS.items():
@@ -689,16 +719,25 @@ def get_submit_image(image_path, annot_path):
                         if char == ele:
                             list_street[i] = key
                             break
+            list_street = ' '.join(map(str, list_street))
+            output_dict[250+cnt] = [list_street, 'ADDRESS']
+            
+        
+        else:
+            index = get_street(height, width, name_bbox, list_bbox, list_index_street)
+            list_street = list_bbox_str[index]
+            list_street = list_street.split()
+            for key, value in ADDRESS_PREPROCESS.items():
+                for ele in value:
+                    for i in range(len(list_street)):
+                        char = list_street[i]
+                        if char == ele:
+                            list_street[i] = key
+                            break
 
             list_street = ' '.join(map(str, list_street))
-
-            if field_name == None:
-                output_dict[250+cnt] = [list_street, 'ADDRESS']
-                cnt += 1
-            else:
-                if list_street != output_dict[0][0]:
-                    output_dict[250+cnt] = [list_street, 'ADDRESS']
-                    cnt += 1
+            output_dict[250+cnt] = [list_street, 'ADDRESS']
+            
 
     except Exception as e:
         print(e)
@@ -772,7 +811,7 @@ if __name__ == "__main__":
     # submit
         # create_result()
 
-    name = "mcocr_val_145115majhy"
+    name = "mcocr_val_145115gkyoe"
 
     annot_path = os.path.join('result_txt', name+".txt")
     image_path = os.path.join('upload', name+".jpg")

@@ -137,3 +137,5 @@ Hanoi
 Cau Giay
 Hạ Long 
 Ha Long
+câm bình
+cầm phả
