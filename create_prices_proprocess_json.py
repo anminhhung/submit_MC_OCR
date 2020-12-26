@@ -31,7 +31,7 @@ ADDRESS_PREPROCESS = {
     "Số": ["shi", "Só"],
     "QN": ["ON", "GN"],
     "ĐC:": ["Đo:", "Đó"],
-    "GD-TC": ["GI-TC"],
+    "GD-TC": ["GI-TC", "GI--CC"],
     "Sơn": ["San"],
     "TỔ": ["TỐ"],
     "P.": ["A."],

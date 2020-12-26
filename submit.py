@@ -349,7 +349,7 @@ def get_index_name(list_bbox_str, number_line=6):
             print("index name: ", i)
             return i
     
-    return 0
+    return None
 
 def get_submit_image(image_path, annot_path):
     output_dict = {}
@@ -712,7 +712,7 @@ if __name__ == "__main__":
     # submit
         # create_result()
 
-    name = "mcocr_val_145115ftati"
+    name = "mcocr_val_145115sxwhn"
 
     annot_path = os.path.join('result_txt', name+".txt")
     image_path = os.path.join('upload', name+".jpg")
