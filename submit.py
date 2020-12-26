@@ -302,7 +302,7 @@ def get_prices(height_img, width_img, prices_box, list_bbox, list_bbox_str):
 
     return bbox_index
 
-def get_index_street(list_bbox_str, number_line=10):
+def get_index_street(list_bbox_str, number_line=6):
     list_street = []
     print("Get index_streeet")
     for i in range(number_line):

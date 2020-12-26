@@ -1,24 +1,23 @@
 import os
-from submit import extractTimestamp
+from submit import extractTimestamp, search_day
 
-# my_string = "Số GD: 000AB2212008002615 Ngày: 10/08/2020-18:22 thuy nha"
+if __name__ == '__main__':
+    my_string = "SỐ GD: 000AC2212008001173 Ngày: 09/08/2020 19:36"
 
-# my_string = my_string.split()
-# for content in my_string:
-#     print("content: ", content)
-#     print("type: ", type(content))
-#     try:
-#         res = extractTimestamp(my_string)
-#         print(res)
-#     except Exception as e:
-#         print("bug in preprocess time: ", e)
-#         print("Guess Content Not Time")
+    list_char_date = ["/", "-", ":"]
+    my_string = my_string.split()
+    if len(my_string) > 1:
+        index = None
+        for i in range(len(my_string)):
+            content = my_string[i]
+            for char in list_char_date:
+                number = content.count(char)
+                if number >= 2:
+                    index = i
+                    break
 
-with open("seller_dictionary.txt") as f:
-    content = f.readlines()
-LIST_SELLER_DEF = [x.strip() for x in content] 
-
-with open("seller.txt", "a+") as f:
-    for content in LIST_SELLER_DEF:
-        content = content.lower()
-        f.write("{}\n".format(content))
+        result = my_string[index-1] + ' ' + my_string[index]
+        print(result)
+    else:
+        result = my_string[0]
+        print(result)
