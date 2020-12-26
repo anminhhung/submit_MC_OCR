@@ -2,7 +2,7 @@ import os
 
 SELLER_PREPROCESS = {
     "MINIMART ANAN": ["MINIMARTANAN"],
-    "Vincommerce": ["Wincommerce", "UnCommerce", "InCommerce", "YinCommerce"],
+    "Vincommerce": ["Wincommerce", "UnCommerce", "InCommerce", "YinCommerce", "Uncommerce", "Mincommerce", "UnCommerced"],
     "Payoo": ["Payoos", "Pay?bi:"],
     "CẨM": ["CÁM"],
     "PHẢ": ["PHÁNG"],
@@ -13,7 +13,7 @@ SELLER_PREPROCESS = {
 ADDRESS_PREPROCESS = {
     "ĐC": ["ĐO", "Đ0", "Đo"],
     "đc": ["đo", "đ0"],
-    "PHẢ": ["PHÀ", "PHI"],
+    "PHẢ": ["PHÀ", "PHI", "PHẢN"],
     "Sủi": ["Súi"],
     "Lâm": ["Làm"],
     "PHỐ": ["PHÓ", "PHÔ"],
@@ -35,12 +35,14 @@ ADDRESS_PREPROCESS = {
     "Sơn": ["San"],
     "TỔ": ["TỐ"],
     "P.": ["A."],
-    "Q.Nam": ["0.Nam"]
+    "Q.Nam": ["0.Nam"],
+    "P.Cầm": ["PhCầm"]
 }
 
 TIME_PREPROCESS = {
-    "Ngày": ["Ngãy", "Ngãy:"],
-    "Ngay:": ["Nosyn"]
+    "Ngày": ["Ngãy", "Ngãy:", "Ngãy"],
+    "Ngay:": ["Nosyn"],
+    "HẠN": ["HAN"]
 }
 
 PRICES_PREPROCESS = {

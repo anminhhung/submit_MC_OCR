@@ -6,6 +6,7 @@ import os
 from collections import deque  
 from sklearn.metrics.pairwise import cosine_similarity
 import collections
+from unidecode import unidecode
 from tqdm import tqdm
 from recognizers_text import Culture, ModelResult
 from recognizers_date_time import DateTimeRecognizer
@@ -31,7 +32,61 @@ with open("prices_prioritize.txt") as f:
     content = f.readlines()
 LIST_PRICES_PRIORITIZE_DEF = [x.strip() for x in content] 
 
+with open("date.txt") as f:
+    content = f.readlines()
+LIST_DATE_DEF = [x.strip() for x in content] 
+
 model = DateTimeRecognizer(Culture.English).get_datetime_model()
+
+def postprocessTimestamp(raw_input):
+    raw_input = raw_input.split('|||')
+    # print(raw_input)
+    if len(raw_input) == 1:
+        return extractTimestamp(raw_input[0])
+    res = []
+    day_symbol = ['/','-','.']
+    has_colon = False
+    for component in raw_input:
+        bad_word = ['HET HAN','LAM VIEC','CODE']
+        isbad = False
+
+        for x in re.findall('[0-9]+', component):
+            if len(x) >= 5:
+                isbad = True
+                break
+        for word in bad_word:
+            if unidecode(component.upper()).find(word) != -1:
+                isbad = True
+                break
+        if isbad:
+            continue
+        component = extractTimestamp(component) 
+        res.append(component)
+        if component.find(':') != -1:
+            has_colon = True
+    # print(res)
+  
+    
+    if has_colon == False:
+        return res[0]
+
+    for x in res:
+        tmp = [x.count(y) for y in day_symbol if x.find(y)!=-1]
+        tmp1 = [1 for y in x.split() if any(map(str.isdigit, y))]
+        # print(x,x.split(),tmp1)
+        if x.find(':') != -1 and len(tmp1) > 1 and len(tmp) > 0 and sum(tmp) >= 2:
+            return x
+    
+    has_colon =  False
+    has_day = False
+    for i, x in enumerate(res):
+        if x.find(':') != -1:
+            has_colon = True
+        if len([1 for y in day_symbol if x.find(y)!=-1]) > 0:
+            has_day = True
+        # print(has_day, has_colon)
+        if has_colon and has_day:
+            return ' '.join(res[i-1:i+1])
 
 def extractTimestamp(raw_input):
     res = model.parse(raw_input)
@@ -336,6 +391,8 @@ def get_index_name(list_bbox_str, number_line=6):
     #     if flag == False:
     #         print("index name: ", i)
     #         return i
+
+    # seller cua Hung`
     for i in range(number_line):
         flag = False
         content = list_bbox_str[i].lower()
@@ -385,6 +442,7 @@ def get_submit_image(image_path, annot_path):
                                 break
                 
                 day = ' '.join(map(str, day))
+                day = postprocessTimestamp(day)
                 print("day after append: ", day)
                 output_dict[331+cnt] = [day, 'TIMESTAMP']
                 cnt += 1
@@ -589,6 +647,31 @@ def get_submit_image(image_path, annot_path):
             print("Not found index!")
             pass
 
+    # get name
+    index_name = get_index_name(list_bbox_str)
+    # print(index_name)
+    field_name = None
+    try:
+        list_name = list_bbox_str[index_name]
+        print("list_name: ", list_name)
+        list_name = list_name.split()
+        for key, value in SELLER_PREPROCESS.items():
+            print("key: {}, value: {}".format(key, value))
+            for ele in value:
+                for i in range(len(list_name)):
+                    char = list_name[i]
+                    if char == ele:
+                        list_name[i] = key
+                        print("key: ", key)
+                        break
+        
+        list_name = ' '.join(map(str, list_name))
+        field_name = list_name
+        output_dict[0] = [list_name, 'SELLER']
+    except:
+        print("Not found index!")
+        pass
+
     # get street
     try:
         list_index_street = get_index_street(list_bbox_str)
@@ -608,42 +691,19 @@ def get_submit_image(image_path, annot_path):
                             break
 
             list_street = ' '.join(map(str, list_street))
-            output_dict[250+cnt] = [list_street, 'ADDRESS']
-            cnt += 1
-    except:
+
+            if field_name == None:
+                output_dict[250+cnt] = [list_street, 'ADDRESS']
+                cnt += 1
+            else:
+                if list_street != output_dict[0][0]:
+                    output_dict[250+cnt] = [list_street, 'ADDRESS']
+                    cnt += 1
+
+    except Exception as e:
+        print(e)
         print("Not found index!")
         pass
-
-    # get name
-    index_name = get_index_name(list_bbox_str)
-    # print(index_name)
-    try:
-        list_name = list_bbox_str[index_name]
-        print("list_name: ", list_name)
-        list_name = list_name.split()
-        for key, value in SELLER_PREPROCESS.items():
-            print("key: {}, value: {}".format(key, value))
-            for ele in value:
-                for i in range(len(list_name)):
-                    char = list_name[i]
-                    if char == ele:
-                        list_name[i] = key
-                        print("key: ", key)
-                        break
-        
-        list_name = ' '.join(map(str, list_name))
-        output_dict[0] = [list_name, 'SELLER']
-    except:
-        print("Not found index!")
-        pass
-
-    # get seller
-    # index_seller = get_index_seller(list_bbox_str)
-    # try:
-    #     output_dict[index_seller] = [list_bbox_str[index_seller], 'SELLER']
-    # except:
-    #     print("Not found index!")
-    #     pass
 
     # sort
     output_dict = collections.OrderedDict(sorted(output_dict.items()))
@@ -678,7 +738,7 @@ def create_result(task1_csv_path='results.csv'):
     # -------------------------
     # Argument
     # task1_csv_path: path of task 1 csv
-    # -------------------------
+    # ------------------------- 
     dtf = pd.read_csv(task1_csv_path)
     field_rank = {
         'SELLER' : 1,
@@ -712,7 +772,7 @@ if __name__ == "__main__":
     # submit
         # create_result()
 
-    name = "mcocr_val_145115sxwhn"
+    name = "mcocr_val_145115majhy"
 
     annot_path = os.path.join('result_txt', name+".txt")
     image_path = os.path.join('upload', name+".jpg")

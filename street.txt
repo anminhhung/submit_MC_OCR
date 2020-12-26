@@ -1,5 +1,4 @@
 tổ
-khu
 tỉnh
 khu phố
 thị xã
@@ -11,8 +10,6 @@ Phuong
 phuong
 thi xa 
 Thi xa
-Tinh
-tinh
 Khu pho
 chợ
 huyện
@@ -136,3 +133,7 @@ qn
 p.cá
 huỳnh văn bánh
 cau giay
+Hanoi
+Cau Giay
+Hạ Long 
+Ha Long
