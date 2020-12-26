@@ -16,7 +16,6 @@ tinh
 Khu pho
 chợ
 huyện
-xã
 thôn
 địa chỉ
 thành phố
@@ -85,3 +84,55 @@ cần thơ
 hải phòng
 hà nội
 tp hcm
+hoàng đạo thuy
+Trần Phú
+trần phú
+trần phủ
+cẩm phà
+cầm phà
+trần phú
+thanh niên
+thanh nien
+cầm sơn
+cảm phà
+quang trung
+gò vấp
+thủ đức
+bình thạnh
+binh thanh
+tan binh
+tân bình
+q10
+q11
+q12
+p1
+p2
+p3
+p4
+p5
+p6
+p7
+p8
+p9
+p.11
+cầm bình
+cảm pha
+gò vấp
+go vấp
+gò vắp
+gò vắp
+phan huy ích
+câm phả
+tp.
+ha noi
+ha dong
+o dat
+cong trinh chung cu
+xuân diệu
+quảng an
+phạm ngọc thạch
+cẩm phá
+qn
+p.cá
+huỳnh văn bánh
+cau giay

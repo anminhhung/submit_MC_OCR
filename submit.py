@@ -9,7 +9,7 @@ import collections
 from tqdm import tqdm
 from recognizers_text import Culture, ModelResult
 from recognizers_date_time import DateTimeRecognizer
-from create_prices_proprocess_json import PRICES_PREPROCESS, PRICES_CHAR, PREFIX_CHAR, ADDRESS_PREPROCESS, SELLER_PREPROCESS
+from create_prices_proprocess_json import PRICES_PREPROCESS, PRICES_CHAR, PREFIX_CHAR, ADDRESS_PREPROCESS, SELLER_PREPROCESS, TIME_PREPROCESS
 
 with open("street.txt") as f:
     content = f.readlines()
@@ -302,7 +302,7 @@ def get_prices(height_img, width_img, prices_box, list_bbox, list_bbox_str):
 
     return bbox_index
 
-def get_index_street(list_bbox_str, number_line=6):
+def get_index_street(list_bbox_str, number_line=10):
     list_street = []
     print("Get index_streeet")
     for i in range(number_line):
@@ -320,29 +320,36 @@ def get_index_street(list_bbox_str, number_line=6):
                         print("content in list street: ", content)
                         list_street.append(i)
                         break
-
+    print("list street: ", list_street)
     return list_street
 
-def get_index_name(list_bbox_str, number_line=4):
+def get_index_name(list_bbox_str, number_line=6):
+    # for i in range(number_line):
+    #     flag = False
+    #     content = list_bbox_str[i].lower()
+    #     print("content in get index name: ", content)
+    #     for word in LIST_STREET_DEF:
+    #         if content.find(word) != -1:
+    #             flag = True
+    #             break
+        
+    #     if flag == False:
+    #         print("index name: ", i)
+    #         return i
     for i in range(number_line):
         flag = False
         content = list_bbox_str[i].lower()
         print("content in get index name: ", content)
-        for word in LIST_STREET_DEF:
+        for word in LIST_SELLER_DEF:
             if content.find(word) != -1:
                 flag = True
                 break
         
-        if flag == False:
+        if flag == True:
             print("index name: ", i)
             return i
-
-# def get_index_seller(list_bbox_str):
-#     for i in range(len(list_bbox_str)):
-#         content = list_bbox_str[i].lower()
-#         for word in LIST_SELLER_DEF:
-#             if content.find(word) != -1:
-#                 return i
+    
+    return 0
 
 def get_submit_image(image_path, annot_path):
     output_dict = {}
@@ -362,6 +369,23 @@ def get_submit_image(image_path, annot_path):
             print("CUong result: ", cuong_result)
             for i in cuong_result:
                 day = list_bbox_str[i]
+                day = day.split()
+                print("day before: ", day)
+                for key, value in TIME_PREPROCESS.items():
+                    print("key: {}, value: {}".format(key, value))
+                    for ele in value:
+                        for i in range(len(day)):
+                            char = day[i]
+                            print("char: ", char)
+                            if char == ele:
+                                print("day[i] before: ", day[i])
+                                day[i] = key
+                                print("day[i] after: ", day[i])
+                                print(day)
+                                break
+                
+                day = ' '.join(map(str, day))
+                print("day after append: ", day)
                 output_dict[331+cnt] = [day, 'TIMESTAMP']
                 cnt += 1
         except:
@@ -570,6 +594,7 @@ def get_submit_image(image_path, annot_path):
         list_index_street = get_index_street(list_bbox_str)
         # street = ' '.join(list_street)
         # print(list_index_street)
+        cnt = 0 
         for index_street in list_index_street:
             list_street = list_bbox_str[index_street]
             list_street = list_street.split()
@@ -583,7 +608,8 @@ def get_submit_image(image_path, annot_path):
                             break
 
             list_street = ' '.join(map(str, list_street))
-            output_dict[index_street] = [list_street, 'ADDRESS']
+            output_dict[250+cnt] = [list_street, 'ADDRESS']
+            cnt += 1
     except:
         print("Not found index!")
         pass
@@ -686,7 +712,7 @@ if __name__ == "__main__":
     # submit
         # create_result()
 
-    name = "mcocr_val_145115akhkf"
+    name = "mcocr_val_145115ftati"
 
     annot_path = os.path.join('result_txt', name+".txt")
     image_path = os.path.join('upload', name+".jpg")
