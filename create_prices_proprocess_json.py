@@ -2,7 +2,7 @@ import os
 
 SELLER_PREPROCESS = {
     "MINIMART ANAN": ["MINIMARTANAN"],
-    "Vincommerce": ["Wincommerce", "UnCommerce", "InCommerce", "YinCommerce", "Uncommerce", "Mincommerce", "UnCommerced", "Wincommerces"],
+    "VinCommerce": ["Wincommerce", "UnCommerce", "InCommerce", "YinCommerce", "Uncommerce", "Mincommerce", "UnCommerced", "Wincommerces"],
     "Payoo": ["Payoos", "Pay?bi:", "Payỡo-:", "Pay?o:", "Pay?on"],
     "CẨM": ["CÁM"],
     "PHẢ": ["PHÁNG"],
