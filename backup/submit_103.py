@@ -6,7 +6,6 @@ import os
 from collections import deque  
 from sklearn.metrics.pairwise import cosine_similarity
 import collections
-from math import sqrt
 from unidecode import unidecode
 from tqdm import tqdm
 from recognizers_text import Culture, ModelResult
@@ -338,34 +337,20 @@ def get_top_prices(list_number_prices, list_bbox_str, top=5):
 
     return prices_top, check_has_onecolumn, true_index
 
-def compute_distance(pointA, pointB):
-    dist = sqrt( (pointB[0] - pointA[0])**2 + (pointB[1] - pointA[1])**2 )
-
-    return dist
-
-def get_index_dist(list_dist, list_index_dist):
-    min_cosine = np.amin(list_dist)
-    index = np.where(list_dist == min_cosine)
-    index = index[0][0]
-    index = list_index_dist[index]
-
-    return index
-
 def get_street(height_img, width_img, name_box, list_bbox, list_index_street):
-    list_dist = []
-    list_index_dist = []
+    list_cosine = []
+    list_index_cosine = []
     vector_gt = get_vector((0, height_img), (width_img, height_img))
     center_name_box = get_center(name_box)
-    for i in list_index_street:
+    for i in range(len(list_index_street)):
         bbox = list_bbox[i]
         center_bbox = get_center(bbox)
-        dist = compute_distance(center_bbox, center_name_box)
+        vector_street_bbox = get_vector(center_bbox, center_name_box)
+        cosine = compute_cosine(vector_street_bbox, vector_gt)
+        list_cosine.append(cosine)
+        list_index_cosine.append(i)
     
-        list_dist.append(dist)
-        list_index_dist.append(i)
-    
-    bbox_index = get_index_dist(list_dist, list_index_dist)
-    print("bbox index cosine street: ", bbox_index)
+    bbox_index = get_index_cosine(list_cosine, list_index_cosine)
 
     return bbox_index
 
@@ -394,6 +379,7 @@ def get_index_street(list_bbox_str, number_line=6):
     print("Get index_streeet")
     for i in range(number_line):
         content = list_bbox_str[i].lower()
+        print("content: ", content)
         for word in LIST_STREET_DEF:
             if content.find(word) != -1:
                 flag = False
@@ -403,7 +389,7 @@ def get_index_street(list_bbox_str, number_line=6):
                         break 
                 if flag == False:
                     if i not in list_street:
-                        # print("content in list street: ", content)
+                        print("content in list street: ", content)
                         list_street.append(i)
                         break
     print("list street: ", list_street)
@@ -706,7 +692,6 @@ def get_submit_image(image_path, annot_path):
     # get street
     try:
         list_index_street = get_index_street(list_bbox_str)
-        print("list index street: ", list_index_street)
         
         # cnt = 0 
         # for index_street in list_index_street:
@@ -722,8 +707,6 @@ def get_submit_image(image_path, annot_path):
         #                     break
 
         #     list_street = ' '.join(map(str, list_street))
-        
-        print("len(list_index_street): ", len(list_index_street))
 
         if len(list_index_street) == 1:
             list_street = list_bbox_str[list_index_street[0]]
@@ -737,20 +720,13 @@ def get_submit_image(image_path, annot_path):
                             list_street[i] = key
                             break
             list_street = ' '.join(map(str, list_street))
-            output_dict[250] = [list_street, 'ADDRESS']
+            output_dict[250+cnt] = [list_street, 'ADDRESS']
             
         
         else:
-            # remove seller in list_index_street
-            for i in list_index_street:
-                print("list_bbox_str[i]: ", list_bbox_str[i])
-                if list_bbox_str[i] == list_bbox_str[index_name]:
-                    list_index_street.remove(i)
-
             index = get_street(height, width, name_bbox, list_bbox, list_index_street)
             list_street = list_bbox_str[index]
             list_street = list_street.split()
-            print("list street: ", list_street)
             for key, value in ADDRESS_PREPROCESS.items():
                 for ele in value:
                     for i in range(len(list_street)):
@@ -760,8 +736,7 @@ def get_submit_image(image_path, annot_path):
                             break
 
             list_street = ' '.join(map(str, list_street))
-            print("list_street final: ", list_street)
-            output_dict[250] = [list_street, 'ADDRESS']
+            output_dict[250+cnt] = [list_street, 'ADDRESS']
             
 
     except Exception as e:
@@ -836,7 +811,7 @@ if __name__ == "__main__":
     # submit
         # create_result()
 
-    name = "mcocr_val_145115wiieg"
+    name = "mcocr_val_145115gkyoe"
 
     annot_path = os.path.join('result_txt', name+".txt")
     image_path = os.path.join('upload', name+".jpg")

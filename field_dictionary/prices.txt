@@ -31,6 +31,8 @@ cộng tiến hàng
 cộng tiền hàng
 công tiến hàng
 công tiền hàng
+công tiên hàng
+công tiên hang
 tiền khách trả
 tiên khách trả
 tiến khách trả

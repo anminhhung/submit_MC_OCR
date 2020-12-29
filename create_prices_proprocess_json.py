@@ -2,19 +2,23 @@ import os
 
 SELLER_PREPROCESS = {
     "MINIMART ANAN": ["MINIMARTANAN"],
-    "Vincommerce": ["Wincommerce", "UnCommerce", "InCommerce", "YinCommerce", "Uncommerce", "Mincommerce", "UnCommerced"],
-    "Payoo": ["Payoos", "Pay?bi:"],
+    "Vincommerce": ["Wincommerce", "UnCommerce", "InCommerce", "YinCommerce", "Uncommerce", "Mincommerce", "UnCommerced", "Wincommerces"],
+    "Payoo": ["Payoos", "Pay?bi:", "Payỡo-:", "Pay?o:", "Pay?on"],
     "CẨM": ["CÁM"],
     "PHẢ": ["PHÁNG"],
     "Co.op": ["Co-op"],
-    "&BÉ": ["8BS"]
+    "&BÉ": ["8BS"],
+    "PHỐ": ["PHÓ", "PHÔ"],
+    "MỎ": ["MÔ"],
+    "coopsmile":["coopsms"],
+    "CỬA": ["CỪA"]
 }
 
 ADDRESS_PREPROCESS = {
     "ĐC": ["ĐO", "Đ0", "Đo"],
     "đc": ["đo", "đ0"],
     "PHẢ": ["PHÀ", "PHI", "PHẢN"],
-    "Sủi": ["Súi"],
+    "Sủi": ["Súi", "Sùi"],
     "Lâm": ["Làm"],
     "PHỐ": ["PHÓ", "PHÔ"],
     "MỎ": ["MÔ"],
@@ -30,14 +34,19 @@ ADDRESS_PREPROCESS = {
     "Niên": ["Nien"],
     "Số": ["shi", "Só"],
     "QN": ["ON", "GN"],
-    "ĐC:": ["Đo:", "Đó"],
+    "ĐC:": ["Đo:", "Đó", "Đế"],
     "GD-TC": ["GI-TC", "GI--CC"],
     "Sơn": ["San"],
     "TỔ": ["TỐ"],
     "P.": ["A."],
     "Q.Nam": ["0.Nam"],
     "P.Cầm": ["PhCầm"],
-    "Thuỵ": ["Thuy"]
+    "Thuỵ": ["Thuy"],
+    "Chợ": ["Chơ"],
+    "": ["Nhiều"],
+    "BÁO": ["ĐÁO"],
+    "Q.PN": ["Qupn"],
+    "Phú": ["Phơ"]
 }
 
 TIME_PREPROCESS = {
