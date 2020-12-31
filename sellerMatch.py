@@ -2,14 +2,15 @@
 
 from Levenshtein import *
 import codecs
+from create_prices_proprocess_json import SELLER_PREPROCESS
 
-sellers = codecs.open('seller_dictionary.txt','r',encoding='utf-8').read().split('\n')
-Sellers = [_.upper() for _ in sellers]
+# SELLER_PREPROCESS = ["MINIMART ANAN", "VinCommerce", "Payoo", "coopsmile"]
+Sellers = [_.upper() for _ in SELLER_PREPROCESS]
 
 def sellerMatch(raw_input):
 	raw_input = raw_input.upper()
 	index_min = max(range(len(Sellers)), \
 		key=lambda x: ratio(raw_input, Sellers[x]))
-	return sellers[index_min]
+	return SELLER_PREPROCESS[index_min]
 
-print(sellerMatch('hello demo ai'))
+print(sellerMatch('Vncommerced'))

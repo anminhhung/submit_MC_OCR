@@ -12,6 +12,7 @@ from tqdm import tqdm
 from recognizers_text import Culture, ModelResult
 from recognizers_date_time import DateTimeRecognizer
 from create_prices_proprocess_json import PRICES_PREPROCESS, PRICES_CHAR, PREFIX_CHAR, ADDRESS_PREPROCESS, SELLER_PREPROCESS, TIME_PREPROCESS
+from sellerMatch import sellerMatch
 
 with open("field_dictionary/street.txt") as f:
     content = f.readlines()
@@ -95,6 +96,8 @@ def extractTimestamp(raw_input):
     res = [x for x in res if x.text!='thu' and (x.text[-1]!='p' or x.text[:-1].isdigit()==False)]
     if len(res) == 0:
         return None
+    # for x in res:
+    #   print(x.text)
     st = res[0].start
     en = res[-1].end 
     result = raw_input[st : en + 1]
@@ -109,7 +112,7 @@ def extractTimestamp(raw_input):
             result = prefix[-1] + ' ' + result
             prefix = prefix[:-1]
         ind = -1
-        if abs(ind) <= len(prefix) and (prefix[ind].upper() == 'NGÀY' or prefix[ind][-1] == ':'):
+        if abs(ind) <= len(prefix) and (unidecode(prefix[ind].upper()) == 'NGAY' or prefix[ind][-1] == ':'):
             while abs(ind) < len(prefix) and prefix[ind][0].islower() or prefix[ind] == ':':
                 ind -= 1
             result = ' '.join(prefix[ind:]) + ' ' + result
@@ -123,6 +126,15 @@ def extractTimestamp(raw_input):
             while ind + 1 < len(suffix) and suffix[ind][-1] != ')':
                 ind += 1
             result = result + ' ' + ' '.join(suffix[:ind])
+    
+    for x in re.findall('[0-9]+', result):
+        if len(x) >= 5:
+            result = result.replace(x,'')
+
+    garbage = ['thu','  ']
+    for x in garbage:
+        result = result.replace(x,'')
+
     return result.replace('thu','').strip() if len(result) > 4 else None
 
 def draw_box(image, bbox, color=(0,0,255)):
@@ -474,6 +486,28 @@ def get_submit_image(image_path, annot_path):
                 
                 day = ' '.join(map(str, day))
                 day = postprocessTimestamp(day)
+
+                # remove long string not have [",", ":", "/"]
+                # day = day.split()
+                # list_char_time = ["/", ":"]
+                # for ele in day:
+                #     if len(ele) > 15:
+                #         day.remove(ele)
+                #     else:
+                #         flag = False
+                #         for char_time in list_char_time:
+                #             if ele.find(char_time) == -1:
+                #                 flag = True
+                #             else:
+                #                 flag = False
+                #                 break
+                        
+                #         if flag == True:
+                #             day.remove(ele)
+
+                # day = ' '.join(map(str, day))
+                ############# 
+
                 print("day after append: ", day)
                 output_dict[331+cnt] = [day, 'TIMESTAMP']
                 cnt += 1
@@ -684,19 +718,20 @@ def get_submit_image(image_path, annot_path):
     name_bbox = None
     try:
         list_name = list_bbox_str[index_name]
-        print("list_name: ", list_name)
-        list_name = list_name.split()
-        for key, value in SELLER_PREPROCESS.items():
-            print("key: {}, value: {}".format(key, value))
-            for ele in value:
-                for i in range(len(list_name)):
-                    char = list_name[i]
-                    if char == ele:
-                        list_name[i] = key
-                        print("key: ", key)
-                        break
+        list_name = sellerMatch(list_name)
+        # print("list_name: ", list_name)
+        # list_name = list_name.split()
+        # for key, value in SELLER_PREPROCESS.items():
+        #     print("key: {}, value: {}".format(key, value))
+        #     for ele in value:
+        #         for i in range(len(list_name)):
+        #             char = list_name[i]
+        #             if char == ele:
+        #                 list_name[i] = key
+        #                 print("key: ", key)
+        #                 break
         
-        list_name = ' '.join(map(str, list_name))
+        # list_name = ' '.join(map(str, list_name))
         name_bbox = list_bbox[index_name]
         output_dict[0] = [list_name, 'SELLER']
     except:
@@ -781,6 +816,9 @@ def print_output(output_dict):
         list_value.append(value[0])
         list_field.append(value[1])
     
+    print(list_value)
+    print(list_field)
+
     result_value = '|||'.join(list_value)
     result_field = '|||'.join(list_field)
     
@@ -836,15 +874,16 @@ if __name__ == "__main__":
     # submit
         # create_result()
 
-    name = "mcocr_val_145115wiieg"
+    name = "mcocr_val_145115majhy"
 
     annot_path = os.path.join('result_txt', name+".txt")
     image_path = os.path.join('upload', name+".jpg")
 
     output_dict = get_submit_image(image_path, annot_path)
+    print(output_dict)
     result_value, result_field = print_output(output_dict)
-    print(result_value)
-    print(result_field)
     # print(output_dict)
-
+    
+    print(result_field)
+    print(result_value)
  

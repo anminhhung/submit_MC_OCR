@@ -1,18 +1,20 @@
 import os 
 
-SELLER_PREPROCESS = {
-    "MINIMART ANAN": ["MINIMARTANAN"],
-    "VinCommerce": ["Wincommerce", "UnCommerce", "InCommerce", "YinCommerce", "Uncommerce", "Mincommerce", "UnCommerced", "Wincommerces"],
-    "Payoo": ["Payoos", "Pay?bi:", "Payỡo-:", "Pay?o:", "Pay?on"],
-    "CẨM": ["CÁM"],
-    "PHẢ": ["PHÁNG"],
-    "Co.op": ["Co-op"],
-    "&BÉ": ["8BS"],
-    "PHỐ": ["PHÓ", "PHÔ"],
-    "MỎ": ["MÔ"],
-    "coopsmile":["coopsms"],
-    "CỬA": ["CỪA"]
-}
+# SELLER_PREPROCESS = {
+#     "MINIMART ANAN": ["MINIMARTANAN"],
+#     "VinCommerce": ["Wincommerce", "UnCommerce", "InCommerce", "YinCommerce", "Uncommerce", "Mincommerce", "UnCommerced", "Wincommerces", "VinCommerce", "Vincommerce", "Vincommerced"],
+#     "Payoo": ["Payoos", "Pay?bi:", "Payỡo-:", "Pay?o:", "Pay?on"],
+#     "CẨM": ["CÁM"],
+#     "PHẢ": ["PHÁNG"],
+#     "Co.op": ["Co-op"],
+#     "&BÉ": ["8BS"],
+#     "PHỐ": ["PHÓ", "PHÔ"],
+#     "MỎ": ["MÔ"],
+#     "coopsmile":["coopsms"],
+#     "CỬA": ["CỪA"]
+# }
+
+SELLER_PREPROCESS = ["MINIMART ANAN", "VinCommerce", "Payoo", "coopsmile", "THE COFFEE HOUSE"]
 
 ADDRESS_PREPROCESS = {
     "ĐC": ["ĐO", "Đ0", "Đo"],
@@ -107,4 +109,4 @@ for key, value in PRICES_CHAR.items():
             tmp = True
             a = a.replace(ele, key)
             break
-print(a)
+# print(a)
