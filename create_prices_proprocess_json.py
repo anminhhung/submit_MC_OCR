@@ -17,7 +17,9 @@ import os
 SELLER_PREPROCESS = ["MINIMART ANAN", "VinCommerce", "Payoo", "coopsmile", "THE COFFEE HOUSE",\
     "NHÀ SÁCH GC-TD CẨM PHẢ", "GUITAR CAFE", "SIEU THI BACH HOA TONG HOP", "TTTM VAN HO-SIEU THI SEIKA MART", \
     "CỬA HÀNG NĂM OÁNH", "TIỆM TRÀ THANH XUÂN", "PHỐ MỎ", "BAKERY", "CAFE", "BIDV", "TALALA", "SIÊU THỊ MINH LOAN", \
-    "CIRCLE K VIETNAM", "BIBO MART", "LAHA CAFE", "TIỆM TRÀ"]
+    "CIRCLE K VIETNAM", "BIBO MART", "LAHA CAFE", "TIỆM TRÀ", "THỨC COFFEE", "KAITEA", "Saigon Co.op", \
+    "THE MOOSE & ROO SMOKEHOUSE", "Satra Group", "TahaCafe", "Phúc Anh Minimart", "Guitar Cafe", "Bakery", \
+    "Vietcombank", "MILANO COFFEE", "PARIS GATEAUX 19", "BRGMART", "MARUMART", "SIÊU THỊ MINH LOAN"]
 
 ADDRESS_PREPROCESS = {
     "ĐC": ["ĐO", "Đ0", "Đo"],
