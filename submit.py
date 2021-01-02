@@ -874,7 +874,7 @@ if __name__ == "__main__":
     # submit
         # create_result()
 
-    name = "mcocr_val_145115gkyoe"
+    name = "mcocr_val_145115bdxyc"
 
     annot_path = os.path.join('result_txt', name+".txt")
     image_path = os.path.join('upload', name+".jpg")
