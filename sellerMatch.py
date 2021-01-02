@@ -4,7 +4,7 @@ from Levenshtein import *
 import codecs
 from create_prices_proprocess_json import SELLER_PREPROCESS
 
-# SELLER_PREPROCESS = ["MINIMART ANAN", "VinCommerce", "Payoo", "coopsmile"]
+
 Sellers = [_.upper() for _ in SELLER_PREPROCESS]
 
 def sellerMatch(raw_input):

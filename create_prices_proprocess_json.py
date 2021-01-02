@@ -14,7 +14,10 @@ import os
 #     "CỬA": ["CỪA"]
 # }
 
-SELLER_PREPROCESS = ["MINIMART ANAN", "VinCommerce", "Payoo", "coopsmile", "THE COFFEE HOUSE"]
+SELLER_PREPROCESS = ["MINIMART ANAN", "VinCommerce", "Payoo", "coopsmile", "THE COFFEE HOUSE",\
+    "NHÀ SÁCH GC-TD CẨM PHẢ", "GUITAR CAFE", "SIEU THI BACH HOA TONG HOP", "TTTM VAN HO-SIEU THI SEIKA MART", \
+    "CỬA HÀNG NĂM OÁNH", "TIỆM TRÀ THANH XUÂN", "PHỐ MỎ", "BAKERY", "CAFE", "BIDV", "TALALA", "SIÊU THỊ MINH LOAN", \
+    "CIRCLE K VIETNAM", "BIBO MART", "LAHA CAFE"]
 
 ADDRESS_PREPROCESS = {
     "ĐC": ["ĐO", "Đ0", "Đo"],
