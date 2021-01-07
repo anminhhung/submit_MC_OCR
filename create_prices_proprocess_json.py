@@ -94,7 +94,30 @@ PREFIX_CHAR = {
     "VAT": ["VAT", "vat"],
     "đ": ["d", "đ"],
     "Đ": ["D", "Đ"],
-    ".": [". "]
+    ".": [". "],
+    "(đá": ["(đã"],
+    "TRẢ": ["TRẢI", "TRẢNG"],
+    "Toán": ["Tron"],
+    "trả": ["trản"]
+}
+
+PREFIX_PRIORITIZE = {
+    "tổng số thanh toán": 1,
+    "tổng thanh toán": 2,
+    "tổng tiền phải t.toán": 4,
+    "tổng tiền sau km": 5,
+    "tong so tien thanh toan": 6,
+    "tiền thanh toán": 7,
+    "tổng tiền": 8,
+    "tổng cộng (đã gồm vat)": 9,
+    "tổng tiền (vat)": 10,
+    "tổng cộng": 11,
+    "khách phải trả": 12,
+    "cộng tiền hàng": 13,
+    "thanh toán": 14,
+    "thành tiền": 15,
+    "tiền khách trả": 16,
+    "tiền khách đưa": 17
 }
 
 a = "TỐNG TIẾN PHẢI T. TOÀN"

@@ -11,8 +11,8 @@ from unidecode import unidecode
 from tqdm import tqdm
 from recognizers_text import Culture, ModelResult
 from recognizers_date_time import DateTimeRecognizer
-from create_prices_proprocess_json import PRICES_PREPROCESS, PRICES_CHAR, PREFIX_CHAR, ADDRESS_PREPROCESS, TIME_PREPROCESS
-from sellerMatch import sellerMatch
+from create_prices_proprocess_json import PRICES_PREPROCESS, PRICES_CHAR, PREFIX_CHAR, ADDRESS_PREPROCESS, TIME_PREPROCESS, PREFIX_PRIORITIZE
+from sellerMatch import sellerMatch, output_Prices_Match, prefixMatch
 
 with open("field_dictionary/street.txt") as f:
     content = f.readlines()
@@ -529,6 +529,7 @@ def get_submit_image(image_path, annot_path):
         prices = list_bbox_str[true_index].split(":")
         prefix_raw = prices[0]
         prices_value = prices[1]
+        print("prices: ", prices)
 
         # preprocess value
         tmp = False
@@ -575,7 +576,9 @@ def get_submit_image(image_path, annot_path):
 
     else:
         try:
+            # check trong list uu tien 
             flag_found = False
+            list_output_prices = []
             for i in range(len(prices_top)):
                 index_prices = prices_top[i]
                 prices_box = list_bbox[index_prices]
@@ -587,12 +590,15 @@ def get_submit_image(image_path, annot_path):
                 #  kiem tra list prices uu tien
                 flag = False
                 print("prefix: ", prefix)
+                prefix = prefixMatch(prefix)
+                print("prefix after: ", prefix)
                 print("prices: ", list_bbox_str[index_prices])
-                for word in LIST_PRICES_PRIORITIZE_DEF:
-                    # print("prefix in PRIORITIZE: ", prefix)
-                    if prefix.find(word) != -1:
-                        flag = True
-                        break
+                if prefix != None:
+                    for word in LIST_PRICES_PRIORITIZE_DEF:
+                        # print("prefix in PRIORITIZE: ", prefix)
+                        if prefix.find(word) != -1:
+                            flag = True
+                            break
                 
                 if flag==True:
                     # preprocess
@@ -635,13 +641,36 @@ def get_submit_image(image_path, annot_path):
                                 
                         if tmp == True:
                             break
-                    
+                        
                     print("index prices: ", index_prices)
-                    prices = prefix_raw + '|||' + prices_value
-                    output_dict[777] = [prefix_raw, 'TOTAL_COST']
-                    output_dict[778] = [prices_value, 'TOTAL_COST']
-                    flag_found = True
-                    break
+                    # prices = prefix_raw + '|||' + prices_value
+                    if prefix_raw == 'Tiền mặt':
+                        prefix_raw = 'Tổng'
+                    if prefix_raw == 'VNĐ':
+                        prefix_raw = 'Tổng cộng'
+
+                    list_output_prices.append((prefix_raw, prices_value))
+            
+            print("list_output_prices: ", list_output_prices)    
+            list_result = []
+            for output_prices in list_output_prices:
+                key = output_prices[0]
+                if key == 'Tổng số:' or key == 'Tổng số':
+                    continue
+                value = output_prices[1]
+                number = output_Prices_Match(key)
+                if len(key) >= 5:
+                    list_result.append([number, key, value])
+            print("list_result: ", list_result)
+
+            # sort list_result nua roi lay phan tu dau tien
+            list_result.sort(key = lambda x: x[0])
+            print("list_result after sort: ", list_result)
+            result_prices = list_result[0]
+            
+            output_dict[777] = [result_prices[1], 'TOTAL_COST']
+            output_dict[778] = [result_prices[2], 'TOTAL_COST']
+            flag_found = True
             
             if flag_found == False:
                 for i in range(len(prices_top)):
@@ -652,13 +681,18 @@ def get_submit_image(image_path, annot_path):
                     
                     prefix_raw = list_bbox_str[index_string_prices]
                     prefix = prefix_raw.lower()
-                    # neu ko co trong list uu tien thi kiem tra list prices chung
+                    #  kiem tra list prices uu tien
                     flag = False
-                    for word in LIST_PRICES_DEF:
-                        # print("prefix in prices def: ", prefix)
-                        if prefix.find(word) != -1:
-                            flag = True
-                            break
+                    print("prefix: ", prefix)
+                    prefix = prefixMatch(prefix)
+                    print("prefix after: ", prefix)
+                    print("prices: ", list_bbox_str[index_prices])
+                    if prefix != None:
+                        for word in LIST_PRICES_PRIORITIZE_DEF:
+                            # print("prefix in PRIORITIZE: ", prefix)
+                            if prefix.find(word) != -1:
+                                flag = True
+                                break
                     
                     if flag==True:
                         # preprocess
@@ -675,11 +709,11 @@ def get_submit_image(image_path, annot_path):
 
                             if tmp == True:
                                 break
+
                         print("########")
                         print("prefix: ", prefix_raw)
                         print("########")
                         list_prefix = prefix_raw.split()
-                        # print("list prefix: ", list_prefix)
                         for key, value in PRICES_PREPROCESS.items():
                             for ele in value:
                                 for i in range(len(list_prefix)):
@@ -690,22 +724,46 @@ def get_submit_image(image_path, annot_path):
                         
                         tmp = False
                         prefix_raw = ' '.join(map(str, list_prefix))
-                        # print("prefix_raw: ", prefix_raw)
                         for key, value in PREFIX_CHAR.items():
                             for ele in value:
                                 index = prefix_raw.find(ele)
                                 if index != -1:
                                     tmp = True
                                     prefix_raw = prefix_raw.replace(ele, key)
+                                    print("prefix: ", prefix_raw)
                                     break
                                     
                             if tmp == True:
                                 break
-                        # print("prefix_raw: ", prefix_raw)
-                        prices = prefix_raw + '|||' + prices_value
-                        output_dict[777] = [prefix_raw, 'TOTAL_COST']
-                        output_dict[778] = [prices_value, 'TOTAL_COST']
-                        break
+                            
+                        print("index prices: ", index_prices)
+                        # prices = prefix_raw + '|||' + prices_value
+                        if prefix_raw == 'Tiền mặt':
+                            prefix_raw = 'Tổng'
+                        if prefix_raw == 'VNĐ':
+                            prefix_raw = 'Tổng cộng'
+                            
+                        list_output_prices.append((prefix_raw, prices_value))
+                
+                print("list_output_prices: ", list_output_prices)    
+                list_result = []
+                for output_prices in list_output_prices:
+                    key = output_prices[0]
+                    if key == 'Tổng số:' or key == 'Tổng số':
+                        continue
+                    value = output_prices[1]
+                    number = output_Prices_Match(key)
+                    if len(key) >= 5:
+                        list_result.append([number, key, value])
+                print("list_result: ", list_result)
+
+                # sort list_result nua roi lay phan tu dau tien
+                list_result.sort(key = lambda x: x[0])
+                print("list_result after sort: ", list_result)
+                result_prices = list_result[0]
+                
+                output_dict[777] = [result_prices[1], 'TOTAL_COST']
+                output_dict[778] = [result_prices[2], 'TOTAL_COST']
 
         except Exception as e:
             print(e)
@@ -874,7 +932,7 @@ if __name__ == "__main__":
     # submit
         # create_result()
 
-    name = "mcocr_val_145115ycgof"
+    name = "mcocr_val_145115ucoum"
 
     annot_path = os.path.join('result_txt', name+".txt")
     image_path = os.path.join('upload', name+".jpg")

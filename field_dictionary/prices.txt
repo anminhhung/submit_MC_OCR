@@ -4,6 +4,11 @@ tổng tiền phải t toán
 tổng tiền phải trả
 tổng số tiền thanh toán
 tổng số tiến thanh toán
+tiên thanh toán
+tiền thanh toán
+tiền thanh toàn
+tiên thanh toàn
+tiên thanh toán:
 total
 thành tiền
 thanh tiền
