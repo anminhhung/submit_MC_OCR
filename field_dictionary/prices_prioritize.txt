@@ -26,3 +26,5 @@ tổng cộng (đã gồm vat)
 tổng giá trị thanh toán: thán
 cộng tiền hàng
 tổng tiền (vat)
+tong gia tri thanh toan
+thanh toan

@@ -11,8 +11,8 @@ from unidecode import unidecode
 from tqdm import tqdm
 from recognizers_text import Culture, ModelResult
 from recognizers_date_time import DateTimeRecognizer
-from create_prices_proprocess_json import PRICES_PREPROCESS, PRICES_CHAR, PREFIX_CHAR, ADDRESS_PREPROCESS, TIME_PREPROCESS, PREFIX_PRIORITIZE
-from sellerMatch import sellerMatch, output_Prices_Match, prefixMatch
+from create_prices_proprocess_json import PRICES_PREPROCESS, PRICES_CHAR, PREFIX_CHAR, ADDRESS_PREPROCESS, TIME_PREPROCESS, PREFIX_PRIORITIZE, ADDRESS_POSTPROCESS
+from sellerMatch import sellerMatch, output_Prices_Match, prefixMatch, addressMatch, findAddress, prefixPreprocess
 
 with open("field_dictionary/street.txt") as f:
     content = f.readlines()
@@ -320,7 +320,7 @@ def get_top_prices(list_number_prices, list_bbox_str, top=5):
 
             prices = float(prices)
 
-            if prices >= 50.0:
+            if prices >= 500.0:
                 if prices >= max_number:
                     max_number = prices
                     prices_top.append(i)
@@ -406,8 +406,11 @@ def get_index_street(list_bbox_str, number_line=6):
     print("Get index_streeet")
     for i in range(number_line):
         content = list_bbox_str[i].lower()
+        new_content = findAddress(content)
+        print(new_content)
         for word in LIST_STREET_DEF:
             if content.find(word) != -1:
+        # if new_content != None:
                 flag = False
                 for char in LIST_PHONE_DEF:
                     if content.find(char) != -1:
@@ -569,7 +572,11 @@ def get_submit_image(image_path, annot_path):
                     
             if tmp == True:
                 break
-        # print("prefix_raw: ", prefix_raw)
+
+        prefix_raw_preprocess = prefixPreprocess(prefix_raw)
+        if prefix_raw_preprocess != 'Nomatching':
+            prefix_raw = prefix_raw_preprocess
+        print("prefix_raw: ", prefix_raw_preprocess)
         prices = prefix_raw + '|||' + prices_value
         output_dict[777] = [prefix_raw, 'TOTAL_COST']
         output_dict[778] = [prices_value, 'TOTAL_COST']
@@ -644,6 +651,11 @@ def get_submit_image(image_path, annot_path):
                         
                     print("index prices: ", index_prices)
                     # prices = prefix_raw + '|||' + prices_value
+                    prefix_raw_preprocess = prefixPreprocess(prefix_raw)
+                    if prefix_raw_preprocess != 'Nomatching':
+                        prefix_raw = prefix_raw_preprocess
+
+                    print("PREFIX RAW: ", prefix_raw)
                     if prefix_raw == 'Tiền mặt':
                         prefix_raw = 'Tổng'
                     if prefix_raw == 'VNĐ':
@@ -737,6 +749,10 @@ def get_submit_image(image_path, annot_path):
                                 break
                             
                         print("index prices: ", index_prices)
+                        prefix_raw_preprocess = prefixPreprocess(prefix_raw)
+                        if prefix_raw_preprocess != 'Nomatching':
+                            prefix_raw = prefix_raw_preprocess
+                        print("PREFIX RAW: ", prefix_raw)
                         # prices = prefix_raw + '|||' + prices_value
                         if prefix_raw == 'Tiền mặt':
                             prefix_raw = 'Tổng'
@@ -777,6 +793,7 @@ def get_submit_image(image_path, annot_path):
     try:
         list_name = list_bbox_str[index_name]
         list_name = sellerMatch(list_name)
+        print(list_name)
         # print("list_name: ", list_name)
         # list_name = list_name.split()
         # for key, value in SELLER_PREPROCESS.items():
@@ -822,13 +839,24 @@ def get_submit_image(image_path, annot_path):
             list_street = list_bbox_str[list_index_street[0]]
             list_street = list_street.split()
             print("list street: ", list_street)
-            for key, value in ADDRESS_PREPROCESS.items():
+
+            # post process
+            for key, value in ADDRESS_POSTPROCESS.items():
                 for ele in value:
                     for i in range(len(list_street)):
                         char = list_street[i]
                         if char == ele:
                             list_street[i] = key
                             break
+            
+            # preprocess
+            for i in range(len(list_street)):
+                street = list_street[i]
+                print(street)
+                street = addressMatch(street)
+                if street != None:
+                    list_street[i] = street
+                
             list_street = ' '.join(map(str, list_street))
             output_dict[250] = [list_street, 'ADDRESS']
             
@@ -844,13 +872,21 @@ def get_submit_image(image_path, annot_path):
             list_street = list_bbox_str[index]
             list_street = list_street.split()
             print("list street: ", list_street)
-            for key, value in ADDRESS_PREPROCESS.items():
+            # post process
+            for key, value in ADDRESS_POSTPROCESS.items():
                 for ele in value:
                     for i in range(len(list_street)):
                         char = list_street[i]
                         if char == ele:
                             list_street[i] = key
                             break
+            
+            # preprocess
+            for i in range(len(list_street)):
+                street = list_street[i]
+                street = addressMatch(street)
+                if street != None:
+                    list_street[i] = street
 
             list_street = ' '.join(map(str, list_street))
             print("list_street final: ", list_street)
@@ -932,7 +968,7 @@ if __name__ == "__main__":
     # submit
         # create_result()
 
-    name = "mcocr_val_145115ucoum"
+    name = "mcocr_val_145115mvstz"
 
     annot_path = os.path.join('result_txt', name+".txt")
     image_path = os.path.join('upload', name+".jpg")

@@ -22,12 +22,12 @@ SELLER_PREPROCESS = ["MINIMART ANAN", "VinCommerce", "Payoo", "coopsmile", "THE 
     "Vietcombank", "MILANO COFFEE", "PARIS GATEAUX 19", "BRGMART", "MARUMART", "SIÊU THỊ MINH LOAN", \
     "SCTC CÔ THỎ 104 TRẦN PHÚ - CẨM PHẢ", "CTY CP SÁCH & TBTH QUẢNG NINH"]
 
-ADDRESS_PREPROCESS = {
+ADDRESS_POSTPROCESS = {
     "ĐC": ["ĐO", "Đ0", "Đo"],
     "đc": ["đo", "đ0"],
     "PHẢ": ["PHÀ", "PHI", "PHẢN"],
     "Sủi": ["Súi", "Sùi"],
-    "Lâm": ["Làm"],
+    "Lâm": ["Làm", "Laim"],
     "PHỐ": ["PHÓ", "PHÔ"],
     "MỎ": ["MÔ"],
     "Cẩm": ["Câm", "Cảm", "Căm", "Cảm", "chm", "Càm"],
@@ -41,7 +41,7 @@ ADDRESS_PREPROCESS = {
     "Phú": ["Phủ", "Phý"],
     "Niên": ["Nien"],
     "Số": ["shi", "Só"],
-    "QN": ["ON", "GN"],
+    "QN": ["ON", "GN", "Nha"],
     "ĐC:": ["Đo:", "Đó", "Đế"],
     "GD-TC": ["GI-TC", "GI--CC"],
     "Sơn": ["San"],
@@ -54,8 +54,13 @@ ADDRESS_PREPROCESS = {
     "": ["Nhiều"],
     "BÁO": ["ĐÁO"],
     "Q.PN": ["Qupn"],
-    "Phú": ["Phơ"]
+    "Phú": ["Phơ", "Phụ"],
+    "Q.Gò": ["Q.Gó", "Q.Go"],
+    "Gia": ["Gin"]
 }
+
+ADDRESS_PREPROCESS = ["ĐC", "đc", "PHẢ", "Sủi", "Lâm", "PHỐ", "MỎ", "Cẩm", "Phả", "CẨM", "Thôn", "Phú", \
+    "Niên", "GD-TC", "Sơn", "Q.Nam", "Chợ", "Thị", "Hà", "Nội", "Chu", "Vấp"]
 
 TIME_PREPROCESS = {
     "Ngày": ["Ngãy", "Ngãy:", "Ngãy"],
@@ -96,10 +101,13 @@ PREFIX_CHAR = {
     "Đ": ["D", "Đ"],
     ".": [". "],
     "(đá": ["(đã"],
-    "TRẢ": ["TRẢI", "TRẢNG"],
+    "TRẢ": ["TRẢI", "TRẢNG", "TRẮN", "TRẲN"],
     "Toán": ["Tron"],
     "trả": ["trản"]
 }
+
+PREFIX_PREPROCESS = ["Tổng Cộng:", "Tổng tiền:", "Thành tiền:", "Tổng cộng (đã gồm VAT)", "Tiền khách trả:", "TỔNG:",\
+    "TONG GIA TRI THANH TOAN", "TIỀN KHÁCH TRẢ", "tong so tien thanh toan"]
 
 PREFIX_PRIORITIZE = {
     "tổng số thanh toán": 1,
@@ -107,17 +115,18 @@ PREFIX_PRIORITIZE = {
     "tổng tiền phải t.toán": 4,
     "tổng tiền sau km": 5,
     "tong so tien thanh toan": 6,
-    "tiền thanh toán": 7,
-    "tổng tiền": 8,
-    "tổng cộng (đã gồm vat)": 9,
-    "tổng tiền (vat)": 10,
-    "tổng cộng": 11,
-    "khách phải trả": 12,
-    "cộng tiền hàng": 13,
-    "thanh toán": 14,
-    "thành tiền": 15,
-    "tiền khách trả": 16,
-    "tiền khách đưa": 17
+    "tong gia tri thanh toan": 7,
+    "tiền thanh toán": 8,
+    "tổng tiền": 9,
+    "tổng cộng (đã gồm vat)": 10,
+    "tổng tiền (vat)": 11,
+    "tổng cộng": 12,
+    "khách phải trả": 13,
+    "cộng tiền hàng": 14,
+    "thanh toán": 15,
+    "thành tiền": 16,
+    "tiền khách trả": 17,
+    "tiền khách đưa": 18
 }
 
 a = "TỐNG TIẾN PHẢI T. TOÀN"
