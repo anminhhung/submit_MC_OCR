@@ -1,32 +1,25 @@
 import os 
 
-# SELLER_PREPROCESS = {
-#     "MINIMART ANAN": ["MINIMARTANAN"],
-#     "VinCommerce": ["Wincommerce", "UnCommerce", "InCommerce", "YinCommerce", "Uncommerce", "Mincommerce", "UnCommerced", "Wincommerces", "VinCommerce", "Vincommerce", "Vincommerced"],
-#     "Payoo": ["Payoos", "Pay?bi:", "Payỡo-:", "Pay?o:", "Pay?on"],
-#     "CẨM": ["CÁM"],
-#     "PHẢ": ["PHÁNG"],
-#     "Co.op": ["Co-op"],
-#     "&BÉ": ["8BS"],
-#     "PHỐ": ["PHÓ", "PHÔ"],
-#     "MỎ": ["MÔ"],
-#     "coopsmile":["coopsms"],
-#     "CỬA": ["CỪA"]
-# }
+SELLER_POSTPROCESS = {
+    "MINIMART ANAN": ["MINIMARTANAN"],
+    "VinCommerce": ["Wincommerce", "UnCommerce", "InCommerce", "YinCommerce", "Uncommerce", "Mincommerce", "UnCommerced", "Wincommerces", "VinCommerce", "Vincommerce", "Vincommerced", "Vin Commerce"],
+    "Payoo": ["Payoos", "Pay?bi:", "Payỡo-:", "Pay?o:", "Pay?on"]
+}
 
 SELLER_PREPROCESS = ["MINIMART ANAN", "VinCommerce", "Payoo", "coopsmile", "THE COFFEE HOUSE",\
-    "NHÀ SÁCH GC-TD CẨM PHẢ", "GUITAR CAFE", "SIEU THI BACH HOA TONG HOP", "TTTM VAN HO-SIEU THI SEIKA MART", \
+    "NHÀ SÁCH GC-TD CẨM PHẢ", "Guitar Cafe", "SIEU THI BACH HOA TONG HOP", "TTTM VAN HO-SIEU THI SEIKA MART", \
     "CỬA HÀNG NĂM OÁNH", "TIỆM TRÀ THANH XUÂN", "PHỐ MỎ", "CAFE", "BIDV", "TALALA", "SIÊU THỊ MINH LOAN", \
     "CIRCLE K VIETNAM", "BIBO MART", "Laha Café", "THỨC COFFEE", "KAITEA", "Saigon Co.op", \
     "THE MOOSE & ROO SMOKEHOUSE", "Satra Group", "Phúc Anh Minimart", "Guitar Cafe", "Bakery café", \
     "Vietcombank", "MILANO COFFEE", "PARIS GATEAUX 19", "BRGMART", "MARUMART", "SIÊU THỊ MINH LOAN", \
-    "SCTC CÔ THỎ 104 TRẦN PHÚ - CẨM PHẢ", "CTY CP SÁCH & TBTH QUẢNG NINH"]
+    "SCTC CÔ THỎ 104 TRẦN PHÚ - CẨM PHẢ", "CTY CP SÁCH & TBTH QUẢNG NINH", "Phương Ốc Hải Phòng"]
 
 ADDRESS_POSTPROCESS = {
     "ĐC": ["ĐO", "Đ0", "Đo"],
+    "ĐC:": ["ĐO:", "Đ0:", "Đ0:"],
     "đc": ["đo", "đ0"],
     "PHẢ": ["PHÀ", "PHI", "PHẢN"],
-    "Sủi": ["Súi", "Sùi"],
+    "Sủi": ["Súi", "Sùi", "Sút", "Sin", "sm", "sai"],
     "Lâm": ["Làm", "Laim"],
     "PHỐ": ["PHÓ", "PHÔ"],
     "MỎ": ["MÔ"],
@@ -50,17 +43,18 @@ ADDRESS_POSTPROCESS = {
     "Q.Nam": ["0.Nam"],
     "P.Cầm": ["PhCầm"],
     "Thuỵ": ["Thuy"],
-    "Chợ": ["Chơ"],
+    "Chợ": ["Chơ", "Chu"],
     "": ["Nhiều"],
     "BÁO": ["ĐÁO"],
     "Q.PN": ["Qupn"],
-    "Phú": ["Phơ", "Phụ"],
+    "Phú": ["Phơ", "Phụ", "Phu", "Phù", "Phủ", "Phũ", "ra", "Phi", "Pha"],
     "Q.Gò": ["Q.Gó", "Q.Go"],
-    "Gia": ["Gin"]
+    "Gia": ["Gin"],
+    "Thị": ["TM", "TW", "tm"]
 }
 
-ADDRESS_PREPROCESS = ["ĐC", "đc", "PHẢ", "Sủi", "Lâm", "PHỐ", "MỎ", "Cẩm", "Phả", "CẨM", "Thôn", "Phú", \
-    "Niên", "GD-TC", "Sơn", "Q.Nam", "Chợ", "Thị", "Hà", "Nội", "Chu", "Vấp"]
+ADDRESS_PREPROCESS = ["ĐC", "đc", "ĐC:" "PHẢ", "Sủi", "Lâm", "PHỐ", "MỎ", "Cẩm", "Phả", "CẨM", "Thôn", "Phú", \
+    "Niên", "GD-TC", "Sơn", "Q.Nam", "Chợ", "Thị", "Hà", "Nội", "Chu", "Vấp", "Phú-Cẩm"]
 
 TIME_PREPROCESS = {
     "Ngày": ["Ngãy", "Ngãy:", "Ngãy"],
@@ -107,26 +101,29 @@ PREFIX_CHAR = {
 }
 
 PREFIX_PREPROCESS = ["Tổng Cộng:", "Tổng tiền:", "Thành tiền:", "Tổng cộng (đã gồm VAT)", "Tiền khách trả:", "TỔNG:",\
-    "TONG GIA TRI THANH TOAN", "TIỀN KHÁCH TRẢ", "tong so tien thanh toan"]
+    "TONG GIA TRI THANH TOAN", "TIỀN KHÁCH TRẢ", "tong so tien thanh toan", "Tổng tiền thanh toán:"]
 
 PREFIX_PRIORITIZE = {
     "tổng số thanh toán": 1,
     "tổng thanh toán": 2,
     "tổng tiền phải t.toán": 4,
+    "tổng tiền thanh toán": 4,
     "tổng tiền sau km": 5,
     "tong so tien thanh toan": 6,
     "tong gia tri thanh toan": 7,
     "tiền thanh toán": 8,
-    "tổng tiền": 9,
+    "tổng tiền": 12,
     "tổng cộng (đã gồm vat)": 10,
     "tổng tiền (vat)": 11,
-    "tổng cộng": 12,
+    "tổng cộng": 9,
     "khách phải trả": 13,
     "cộng tiền hàng": 14,
     "thanh toán": 15,
     "thành tiền": 16,
     "tiền khách trả": 17,
-    "tiền khách đưa": 18
+    "tiền khách đưa": 18,
+    "tổng": 19,
+    "total": 25
 }
 
 a = "TỐNG TIẾN PHẢI T. TOÀN"

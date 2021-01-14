@@ -11,8 +11,9 @@ from unidecode import unidecode
 from tqdm import tqdm
 from recognizers_text import Culture, ModelResult
 from recognizers_date_time import DateTimeRecognizer
-from create_prices_proprocess_json import PRICES_PREPROCESS, PRICES_CHAR, PREFIX_CHAR, ADDRESS_PREPROCESS, TIME_PREPROCESS, PREFIX_PRIORITIZE, ADDRESS_POSTPROCESS
-from sellerMatch import sellerMatch, output_Prices_Match, prefixMatch, addressMatch, findAddress, prefixPreprocess
+from create_prices_proprocess_json import PRICES_PREPROCESS, PRICES_CHAR, PREFIX_CHAR, ADDRESS_PREPROCESS,\
+                                         TIME_PREPROCESS, PREFIX_PRIORITIZE, ADDRESS_POSTPROCESS, SELLER_POSTPROCESS
+from sellerMatch import sellerMatch, output_Prices_Match, prefixMatch, addressMatch, findAddress, prefixPreprocess, findSeller
 
 with open("field_dictionary/street.txt") as f:
     content = f.readlines()
@@ -401,7 +402,7 @@ def get_prices(height_img, width_img, prices_box, list_bbox, list_bbox_str):
 
     return bbox_index
 
-def get_index_street(list_bbox_str, number_line=6):
+def get_index_street(list_bbox_str, number_line=7):
     list_street = []
     print("Get index_streeet")
     for i in range(number_line):
@@ -445,12 +446,22 @@ def get_index_name(list_bbox_str, number_line=6):
         print("content in get index name: ", content)
         for word in LIST_SELLER_DEF:
             if content.find(word) != -1:
+        # new_content = findSeller(content)
+                # if new_content != None:
                 flag = True
                 break
         
         if flag == True:
             print("index name: ", i)
             return i
+    
+    for i in range(number_line):
+        # flag = False
+        content = list_bbox_str[i].lower()
+        new_content = findSeller(content)
+        if new_content != None:
+           return i
+                
     
     return None
 
@@ -470,6 +481,7 @@ def get_submit_image(image_path, annot_path):
         try:
             cnt = 0
             print("CUong result: ", cuong_result)
+            check_len_list_day = 0
             for i in cuong_result:
                 day = list_bbox_str[i]
                 day = day.split()
@@ -512,7 +524,10 @@ def get_submit_image(image_path, annot_path):
                 ############# 
 
                 print("day after append: ", day)
+                if check_len_list_day > 2:
+                    break
                 output_dict[331+cnt] = [day, 'TIMESTAMP']
+                check_len_list_day += 1
                 cnt += 1
         except:
             print("Not found index!")
@@ -696,7 +711,8 @@ def get_submit_image(image_path, annot_path):
                     #  kiem tra list prices uu tien
                     flag = False
                     print("prefix: ", prefix)
-                    prefix = prefixMatch(prefix)
+                    if prefixMatch(prefix) != None:
+                        prefix = prefixMatch(prefix)
                     print("prefix after: ", prefix)
                     print("prices: ", list_bbox_str[index_prices])
                     if prefix != None:
@@ -792,11 +808,14 @@ def get_submit_image(image_path, annot_path):
     name_bbox = None
     try:
         list_name = list_bbox_str[index_name]
-        list_name = sellerMatch(list_name)
+        if sellerMatch(list_name) != None:
+            list_name = sellerMatch(list_name)
         print(list_name)
+        if list_name == 'Vin Commerce':
+            list_name = 'VinCommerce'
         # print("list_name: ", list_name)
         # list_name = list_name.split()
-        # for key, value in SELLER_PREPROCESS.items():
+        # for key, value in SELLER_POSTPROCESS.items():
         #     print("key: {}, value: {}".format(key, value))
         #     for ele in value:
         #         for i in range(len(list_name)):
@@ -968,7 +987,7 @@ if __name__ == "__main__":
     # submit
         # create_result()
 
-    name = "mcocr_val_145115mvstz"
+    name = "mcocr_val_145115hjimq"
 
     annot_path = os.path.join('result_txt', name+".txt")
     image_path = os.path.join('upload', name+".jpg")

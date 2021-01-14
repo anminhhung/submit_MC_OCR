@@ -20,14 +20,26 @@ with open("field_dictionary/street.txt") as f:
 LIST_STREET_DEF = [x.strip() for x in content] 
 # print(LIST_OUTPUT_PRICES)
 
+with open("field_dictionary/seller.txt") as f:
+    content = f.readlines()
+LIST_SELLER_DEF = [x.strip() for x in content] 
+
 Sellers = [_.upper() for _ in SELLER_PREPROCESS]
+
+def findSeller(raw_input):
+	raw_input = raw_input.upper()
+	index_min = max(range(len(LIST_SELLER_DEF)), \
+		key=lambda x: ratio(raw_input, LIST_SELLER_DEF[x]))
+	print("LIST_SELLER_DEF[index_min]: ", LIST_SELLER_DEF[index_min])
+	print("distance(raw_input, LIST_SELLER_DEF[index_min]): ", distance(raw_input, LIST_SELLER_DEF[index_min]))
+	return LIST_SELLER_DEF[index_min] if distance(raw_input, LIST_SELLER_DEF[index_min]) < 7 else None
 
 def sellerMatch(raw_input):
 	raw_input = raw_input.upper()
 	index_min = max(range(len(Sellers)), \
 		key=lambda x: ratio(raw_input, Sellers[x]))
-	# return SELLER_PREPROCESS[index_min] if distance(raw_input, SELLER_PREPROCESS[index_min]) < 7 else None
-	return SELLER_PREPROCESS[index_min]
+	return SELLER_PREPROCESS[index_min] if distance(raw_input, SELLER_PREPROCESS[index_min]) < 11 else None
+	# return SELLER_PREPROCESS[index_min]
 
 def prefixMatch(raw_input):
 	# raw_input = raw_input.upper()

@@ -28,3 +28,5 @@ cộng tiền hàng
 tổng tiền (vat)
 tong gia tri thanh toan
 thanh toan
+total
+tại quầy
