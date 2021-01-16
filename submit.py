@@ -479,11 +479,12 @@ def get_submit_image(image_path, annot_path):
     # print(index_day_bbox)
     if flag == True:
         try:
-            cnt = 0
+            list_output_time = []
             print("CUong result: ", cuong_result)
             check_len_list_day = 0
-            for i in cuong_result:
-                day = list_bbox_str[i]
+            for index_time in cuong_result:
+                print("NUMBER INDEX: ", index_time)
+                day = list_bbox_str[index_time]
                 day = day.split()
                 print("day before: ", day)
                 for key, value in TIME_PREPROCESS.items():
@@ -500,7 +501,9 @@ def get_submit_image(image_path, annot_path):
                                 break
                 
                 day = ' '.join(map(str, day))
-                day = postprocessTimestamp(day)
+                print("DAY before post process", day)
+                # day = postprocessTimestamp(day)
+                print("DAY after post process: ", day)
 
                 # remove long string not have [",", ":", "/"]
                 # day = day.split()
@@ -523,13 +526,23 @@ def get_submit_image(image_path, annot_path):
                 # day = ' '.join(map(str, day))
                 ############# 
 
+                print("NUMBER INDEX: ", index_time)
                 print("day after append: ", day)
                 if check_len_list_day > 2:
                     break
-                output_dict[331+cnt] = [day, 'TIMESTAMP']
+                    
+                list_output_time.append([index_time, day])
+
+            list_output_time.sort(key = lambda x: get_center(list_bbox[x[0]]))
+
+            print("LIST OUTPUT TIME: ", list_output_time)
+            cnt = 0
+            for output_time in list_output_time:
+                output_dict[331+cnt] = [output_time[1], 'TIMESTAMP']
                 check_len_list_day += 1
                 cnt += 1
-        except:
+        except Exception as e:
+            print(e)
             print("Not found index!")
             pass
     else:
@@ -878,8 +891,7 @@ def get_submit_image(image_path, annot_path):
                 
             list_street = ' '.join(map(str, list_street))
             output_dict[250] = [list_street, 'ADDRESS']
-            
-        
+               
         else:
             # remove seller in list_index_street
             for i in list_index_street:
@@ -987,7 +999,7 @@ if __name__ == "__main__":
     # submit
         # create_result()
 
-    name = "mcocr_val_145115hjimq"
+    name = "mcocr_val_145115elhmv"
 
     annot_path = os.path.join('result_txt', name+".txt")
     image_path = os.path.join('upload', name+".jpg")
