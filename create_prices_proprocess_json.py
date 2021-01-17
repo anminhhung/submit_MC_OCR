@@ -16,7 +16,7 @@ SELLER_PREPROCESS = ["MINIMART ANAN", "VinCommerce", "Payoo", "coopsmile", "THE 
 
 ADDRESS_POSTPROCESS = {
     "ĐC": ["ĐO", "Đ0", "Đo"],
-    "ĐC:": ["ĐO:", "Đ0:", "Đ0:"],
+    "ĐC:": ["ĐO:", "Đ0:", "Đ0:", "Đó:"],
     "đc": ["đo", "đ0"],
     "đc:": ["đo:", "đ0:", "đư:", "đu:"],
     "PHẢ": ["PHÀ", "PHI", "PHẢN"],
@@ -58,9 +58,11 @@ ADDRESS_PREPROCESS = ["ĐC", "đc", "ĐC:" "PHẢ", "Sủi", "Lâm", "PHỐ", "M
     "Niên", "GD-TC", "Sơn", "Q.Nam", "Chợ", "Thị", "Hà", "Nội", "Chu", "Vấp", "Phú-Cẩm"]
 
 TIME_PREPROCESS = {
-    "Ngày": ["Ngãy", "Ngãy:", "Ngãy"],
+    "Ngày": ["Ngãy", "Ngãy:", "Ngãy", "Nosyn"],
     "Ngay:": ["Nosyn"],
-    "HẠN": ["HAN"]
+    "HẠN": ["HAN"],
+    "bán": ["bản", "bàn", "bãn"],
+    "bán:": ["bản:", "bàn:", "bãn:"]
 }
 
 PRICES_PREPROCESS = {
@@ -102,7 +104,7 @@ PREFIX_CHAR = {
 }
 
 PREFIX_PREPROCESS = ["Tổng Cộng:", "Tổng tiền:", "Thành tiền:", "Tổng cộng (đã gồm VAT)", "Tiền khách trả:", "TỔNG:",\
-    "TONG GIA TRI THANH TOAN", "TIỀN KHÁCH TRẢ", "tong so tien thanh toan", "Tổng tiền thanh toán:"]
+    "TONG GIA TRI THANH TOAN", "TIỀN KHÁCH TRẢ", "tong so tien thanh toan", "Tổng tiền thanh toán:", "TẠI QUẦY"]
 
 PREFIX_PRIORITIZE = {
     "tổng số thanh toán": 1,

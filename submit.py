@@ -43,9 +43,10 @@ model = DateTimeRecognizer(Culture.English).get_datetime_model()
 
 def postprocessTimestamp(raw_input):
     raw_input = raw_input.split('|||')
-    # print(raw_input)
+    print(raw_input)
     if len(raw_input) == 1:
-        return extractTimestamp(raw_input[0])
+        # return extractTimestamp(raw_input[0])
+        return raw_input[0]
     res = []
     day_symbol = ['/','-','.']
     has_colon = False
@@ -67,7 +68,7 @@ def postprocessTimestamp(raw_input):
         res.append(component)
         if component.find(':') != -1:
             has_colon = True
-    # print(res)
+    print("res: ", res) 
   
     
     if has_colon == False:
@@ -76,7 +77,7 @@ def postprocessTimestamp(raw_input):
     for x in res:
         tmp = [x.count(y) for y in day_symbol if x.find(y)!=-1]
         tmp1 = [1 for y in x.split() if any(map(str.isdigit, y))]
-        # print(x,x.split(),tmp1)
+        print(x,x.split(),tmp1)
         if x.find(':') != -1 and len(tmp1) > 1 and len(tmp) > 0 and sum(tmp) >= 2:
             return x
     
@@ -87,7 +88,7 @@ def postprocessTimestamp(raw_input):
             has_colon = True
         if len([1 for y in day_symbol if x.find(y)!=-1]) > 0:
             has_day = True
-        # print(has_day, has_colon)
+        print("has_day: {}, has_colon: {}".format(has_day, has_colon))
         if has_colon and has_day:
             return ' '.join(res[i-1:i+1])
 
@@ -502,7 +503,7 @@ def get_submit_image(image_path, annot_path):
                 
                 day = ' '.join(map(str, day))
                 print("DAY before post process", day)
-                # day = postprocessTimestamp(day)
+                day = postprocessTimestamp(day)
                 print("DAY after post process: ", day)
 
                 # remove long string not have [",", ":", "/"]
@@ -999,7 +1000,7 @@ if __name__ == "__main__":
     # submit
         # create_result()
 
-    name = "mcocr_val_145115elhmv"
+    name = "mcocr_val_145115djbdi"
 
     annot_path = os.path.join('result_txt', name+".txt")
     image_path = os.path.join('upload', name+".jpg")

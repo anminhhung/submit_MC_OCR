@@ -30,3 +30,5 @@ tong gia tri thanh toan
 thanh toan
 total
 tại quầy
+tai quầy
+tai quây
