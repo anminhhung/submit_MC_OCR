@@ -45,8 +45,8 @@ def postprocessTimestamp(raw_input):
     raw_input = raw_input.split('|||')
     print(raw_input)
     if len(raw_input) == 1:
-        # return extractTimestamp(raw_input[0])
-        return raw_input[0]
+        return extractTimestamp(raw_input[0])
+        # return raw_input[0]
     res = []
     day_symbol = ['/','-','.']
     has_colon = False
