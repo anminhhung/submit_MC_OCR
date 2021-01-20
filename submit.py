@@ -508,6 +508,8 @@ def get_submit_image(image_path, annot_path):
                 if len(list_time) > 3:
                     day = extractTimestamp(day)
 
+                day = day.replace(".", ":")
+
                 # day_tmp = day.lower()
                 # print("DAY tmp before post process", day_tmp)
 
