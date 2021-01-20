@@ -1,7 +1,13 @@
-from evaluate import evaluate
+import random
+from submit import extractTimestamp
 
-cer_full = evaluate("train_df/results.txt", "FULL")
-# cer_address = evaluate("train_df/results.txt", "ADDRESS")
+my_string = "SỐ GD: 000AB2212008003195 Ngày: 13/08/2020-08:52"
 
-print(f"FULL CER: {cer_full}")
-# print(f"ADDRESS CER: {cer_address}")
+# string_tmp = my_string.lower()
+list_time = my_string.split()
+if len(list_time) > 3:
+    time = extractTimestamp(my_string)
+else:
+    time =  my_string
+
+print("time: ", time)

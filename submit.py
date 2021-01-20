@@ -384,7 +384,7 @@ def get_street(height_img, width_img, name_box, list_bbox, list_index_street):
     return bbox_index
 
 def get_prices(height_img, width_img, prices_box, list_bbox, list_bbox_str):
-    # check parallel
+    # check parallel 
     list_cosine = []
     list_index_cosine = []
     vector_gt = get_vector((0, height_img), (width_img, height_img))
@@ -503,8 +503,19 @@ def get_submit_image(image_path, annot_path):
                 
                 day = ' '.join(map(str, day))
                 print("DAY before post process", day)
-                day = postprocessTimestamp(day)
-                print("DAY after post process: ", day)
+
+                list_time = day.split()
+                if len(list_time) > 3:
+                    day = extractTimestamp(day)
+
+                # day_tmp = day.lower()
+                # print("DAY tmp before post process", day_tmp)
+
+                # if "thời" not in day_tmp or "print" not in day_tmp:
+                #     print("Don't have thoi")
+                #     day = postprocessTimestamp(day)
+
+                # print("DAY after post process: ", day)
 
                 # remove long string not have [",", ":", "/"]
                 # day = day.split()
@@ -1000,7 +1011,7 @@ if __name__ == "__main__":
     # submit
         # create_result()
 
-    name = "mcocr_val_145115djbdi"
+    name = "mcocr_val_145115dbbem"
 
     annot_path = os.path.join('result_txt', name+".txt")
     image_path = os.path.join('upload', name+".jpg")
