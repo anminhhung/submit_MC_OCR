@@ -53,11 +53,12 @@ ADDRESS_POSTPROCESS = {
     "Gia": ["Gin"],
     "Thị": ["TM", "TW", "tm"],
     "Quảng": ["Quống"],
-    "CTY": ["PHETY"]
+    "CTY": ["PHETY"],
+    "Mỹ": ["Miy"]
 }
 
 ADDRESS_PREPROCESS = ["ĐC", "đc", "ĐC:" "PHẢ", "Sủi", "Lâm", "PHỐ", "MỎ", "Cẩm", "Phả", "CẨM", "Thôn", "Phú", \
-    "Niên", "GD-TC", "Sơn", "Q.Nam", "Chợ", "Thị", "Hà", "Nội", "Chu", "Vấp", "Phú-Cẩm", "Quảng"]
+    "Niên", "GD-TC", "Sơn", "Q.Nam", "Chợ", "Thị", "Hà", "Nội", "Chu", "Vấp", "Phú-Cẩm", "Quảng", "Mỹ"]
 
 TIME_PREPROCESS = {
     "Ngày": ["Ngãy", "Ngãy:", "Ngãy", "Nosyn"],

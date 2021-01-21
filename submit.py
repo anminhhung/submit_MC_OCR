@@ -14,6 +14,7 @@ from recognizers_date_time import DateTimeRecognizer
 from create_prices_proprocess_json import PRICES_PREPROCESS, PRICES_CHAR, PREFIX_CHAR, ADDRESS_PREPROCESS,\
                                          TIME_PREPROCESS, PREFIX_PRIORITIZE, ADDRESS_POSTPROCESS, SELLER_POSTPROCESS
 from sellerMatch import sellerMatch, output_Prices_Match, prefixMatch, addressMatch, findAddress, prefixPreprocess, findSeller
+from shapely.geometry import Polygon
 
 with open("field_dictionary/street.txt") as f:
     content = f.readlines()
@@ -437,6 +438,37 @@ def get_index_street(list_bbox_str, number_line=7):
     print("list street: ", list_street)
     return list_street
 
+# format bbox:  [[66, 1222], [67, 1195], [369, 1209], [368, 1236]]
+def get_line_box(bbox, height, width):
+    center_bbox = get_center(bbox)
+    point1 = None
+    point2 = None
+    point3 = None
+    point4 = None
+    for point in bbox:
+        if point[0] < center_bbox[0] and point[1] < center_bbox[1]:
+            point1 = [0, point[1]]
+        elif point[0] > center_bbox[0] and point[1] < center_bbox[1]:
+            point2 = [width, point[1]]
+        elif point[0] < center_bbox[0] and point[1] > center_bbox[1]:
+            point3 = [0, point[1]]
+        else:
+            point4 = [width, point[1]]
+    
+    return [point1, point2, point3, point4]
+
+def check_two_box_intersec(bbox1, bbox2, height, width):
+    line_bbox1 = get_line_box(bbox1, height, width)
+    line_bbox2 = get_line_box(bbox2, height, width)
+
+    polygon_bbox1 = Polygon(line_bbox1)
+    polygon_bbox2 = Polygon(line_bbox2)
+
+    if polygon_bbox1.intersects(polygon_bbox2):
+        return True
+    
+    return False
+
 def get_index_name(list_bbox_str, number_line=6):
     # for i in range(number_line):
     #     flag = False
@@ -516,8 +548,20 @@ def get_submit_image(image_path, annot_path):
                 print("DAY before post process", day)
 
                 list_time = day.split()
-                if len(list_time) > 3:
-                    day = extractTimestamp(day)
+                list_block_re_extract = ["Ngày", "bán"]
+
+                check_block = False
+                for my_time in list_time:
+                    if my_time in list_block_re_extract:
+                        check_block = True 
+                        break 
+                
+                if check_block == False:
+                    if len(list_time) > 3:
+                        print("len list time: ", len(list_time))
+                        print("list_time: ", list_time)
+                        print("day before re extracttime: ", day)
+                        day = extractTimestamp(day)
 
                 day = day.replace(".", ":")
 
@@ -559,6 +603,14 @@ def get_submit_image(image_path, annot_path):
                 list_output_time.append([index_time, day])
 
             list_output_time.sort(key = lambda x: get_center(list_bbox[x[0]]))
+            print("BBOX: ", list_bbox[list_output_time[0][0]])
+            if len(list_output_time) == 3:
+                if check_two_box_intersec(list_bbox[list_output_time[0][0]], list_bbox[list_output_time[1][0]], height, width):
+                    if check_two_box_intersec(list_bbox[list_output_time[0][0]], list_bbox[list_output_time[2][0]], height, width) == False:
+                        list_output_time.pop(2)
+                else:
+                    if check_two_box_intersec(list_bbox[list_output_time[1][0]], list_bbox[list_output_time[2][0]], height, width) == True:
+                        list_output_time.pop(0)
 
             print("LIST OUTPUT TIME: ", list_output_time)
             cnt = 0
@@ -1035,7 +1087,7 @@ if __name__ == "__main__":
     # submit
         # create_result()
 
-    name = "mcocr_private_145120vvopk"
+    name = "mcocr_private_145121pgxpu"
 
     annot_path = os.path.join('result_txt', name+".txt")
     image_path = os.path.join('upload', name+".jpg")
