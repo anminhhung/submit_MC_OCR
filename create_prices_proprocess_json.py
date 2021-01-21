@@ -21,7 +21,7 @@ ADDRESS_POSTPROCESS = {
     "đc:": ["đo:", "đ0:", "đư:", "đu:"],
     "PHẢ": ["PHÀ", "PHI", "PHẢN"],
     "Sủi": ["Súi", "Sùi", "Sút", "Sin", "sm", "sai"],
-    "Lâm": ["Làm", "Laim"],
+    "Lâm": ["Làm", "Laim", "Lám"],
     "PHỐ": ["PHÓ", "PHÔ"],
     "MỎ": ["MÔ"],
     "Cẩm": ["Câm", "Cảm", "Căm", "Cảm", "chm", "Càm"],
@@ -29,9 +29,9 @@ ADDRESS_POSTPROCESS = {
     "Phả,": ["Pha,"],
     "CẨM": ["CÁM"],
     "Thôn": ["Thón"],
-    "QNH": ["ONH", "NHI", "VIN4", "VIH"],
+    "QNH": ["ONH", "NHI", "VIH"],
     "+": ["?", "4"],
-    "VM+": ["VIÀ", "VM4", "VIM", "VM", "VINT", "MMA", "VINH"],
+    "VM+": ["VIÀ", "VM4", "VIM", "VM", "VINT", "MMA", "VINH", "Vhit", "VMA", "VIN4"],
     "Phú": ["Phủ", "Phý"],
     "Niên": ["Nien"],
     "Số": ["shi", "Só"],
@@ -54,11 +54,12 @@ ADDRESS_POSTPROCESS = {
     "Thị": ["TM", "TW", "tm"],
     "Quảng": ["Quống"],
     "CTY": ["PHETY"],
-    "Mỹ": ["Miy"]
+    "Mỹ": ["Miy"],
+    "Tổ": ["Tô"]
 }
 
 ADDRESS_PREPROCESS = ["ĐC", "đc", "ĐC:" "PHẢ", "Sủi", "Lâm", "PHỐ", "MỎ", "Cẩm", "Phả", "CẨM", "Thôn", "Phú", \
-    "Niên", "GD-TC", "Sơn", "Q.Nam", "Chợ", "Thị", "Hà", "Nội", "Chu", "Vấp", "Phú-Cẩm", "Quảng", "Mỹ"]
+    "Niên", "GD-TC", "Sơn", "Q.Nam", "Chợ", "Thị", "Hà", "Nội", "Chu", "Vấp", "Phú-Cẩm", "Quảng", "Mỹ", "VM+"]
 
 TIME_PREPROCESS = {
     "Ngày": ["Ngãy", "Ngãy:", "Ngãy", "Nosyn"],

@@ -1,5 +1,7 @@
 tổ
+tố
 tỉnh
+tô
 khu phố
 thị xã
 duong
@@ -173,3 +175,4 @@ cầm phá
 ninh
 cầm
 phá
+minh tiến

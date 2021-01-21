@@ -564,6 +564,7 @@ def get_submit_image(image_path, annot_path):
                         day = extractTimestamp(day)
 
                 day = day.replace(".", ":")
+                day = day.replace("bản", "bán")
 
                 # day_tmp = day.lower()
                 # print("DAY tmp before post process", day_tmp)
@@ -984,33 +985,45 @@ def get_submit_image(image_path, annot_path):
                 if list_bbox_str[i] == list_bbox_str[index_name]:
                     list_index_street.remove(i)
 
-            index = get_street(height, width, name_bbox, list_bbox, list_index_street)
-            list_street = list_bbox_str[index]
-            list_street = list_street.split()
-            print("list street: ", list_street)
-            # post process
-            for key, value in ADDRESS_POSTPROCESS.items():
-                for ele in value:
-                    for i in range(len(list_street)):
-                        char = list_street[i]
-                        if char == ele:
-                            list_street[i] = key
-                            break
-            
-            # preprocess
-            for i in range(len(list_street)):
-                street = list_street[i]
-                street = addressMatch(street)
-                if street != None:
-                    list_street[i] = street
+            # index = get_street(height, width, name_bbox, list_bbox, list_index_street)
+            cnt_street = 1
+            list_output_street = []
+            for index in list_index_street:
+                list_street = list_bbox_str[index]
+                list_street = list_street.split()
+                print("list street: ", list_street)
+                # post process
+                for key, value in ADDRESS_POSTPROCESS.items():
+                    for ele in value:
+                        for i in range(len(list_street)):
+                            char = list_street[i]
+                            if char == ele:
+                                list_street[i] = key
+                                break
+                
+                # preprocess
+                for i in range(len(list_street)):
+                    street = list_street[i]
+                    street = addressMatch(street)
+                    if street != None:
+                        list_street[i] = street
 
-            list_street = ' '.join(map(str, list_street))
-            if "Enail" in list_street:
-                list_street = ""
-            if "Email" in list_street:
-                list_street = ""
-            print("list_street final: ", list_street)
-            output_dict[250] = [list_street, 'ADDRESS']
+                list_street = ' '.join(map(str, list_street))
+                if "Enail" in list_street:
+                    list_street = ""
+                if "Email" in list_street:
+                    list_street = ""
+                print("list_street final: ", list_street)
+                list_output_street.append([index, list_street])
+                # output_dict[250+cnt_street] = [list_street, 'ADDRESS']
+                # cnt_street += 1
+            
+            list_output_street.sort(key = lambda x: get_center(list_bbox[x[0]]))
+            # list_output_street.sort(key = lambda x: get_center(list_bbox[x[0]])[1])
+            for output_street in list_output_street:
+                if "VM+" not in output_street[1]:
+                    output_dict[250+cnt_street] = [output_street[1], 'ADDRESS']
+                    cnt_street += 1
 
     except Exception as e:
         print(e)
@@ -1087,7 +1100,7 @@ if __name__ == "__main__":
     # submit
         # create_result()
 
-    name = "mcocr_private_145121pgxpu"
+    name = "mcocr_private_145120ixnws"
 
     annot_path = os.path.join('result_txt', name+".txt")
     image_path = os.path.join('upload', name+".jpg")
