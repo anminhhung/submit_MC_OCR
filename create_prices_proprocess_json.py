@@ -25,7 +25,7 @@ ADDRESS_POSTPROCESS = {
     "PHỐ": ["PHÓ", "PHÔ"],
     "MỎ": ["MÔ"],
     "Cẩm": ["Câm", "Cảm", "Căm", "Cảm", "chm", "Càm"],
-    "Phả": ["Phá", "Pha"],
+    "Phả": ["Phá", "Pha", "Phá"],
     "Phả,": ["Pha,"],
     "CẨM": ["CÁM"],
     "Thôn": ["Thón"],
@@ -51,11 +51,13 @@ ADDRESS_POSTPROCESS = {
     "Phú": ["Phơ", "Phụ", "Phu", "Phù", "Phủ", "Phũ", "ra", "Phi", "Pha"],
     "Q.Gò": ["Q.Gó", "Q.Go"],
     "Gia": ["Gin"],
-    "Thị": ["TM", "TW", "tm"]
+    "Thị": ["TM", "TW", "tm"],
+    "Quảng": ["Quống"],
+    "CTY": ["PHETY"]
 }
 
 ADDRESS_PREPROCESS = ["ĐC", "đc", "ĐC:" "PHẢ", "Sủi", "Lâm", "PHỐ", "MỎ", "Cẩm", "Phả", "CẨM", "Thôn", "Phú", \
-    "Niên", "GD-TC", "Sơn", "Q.Nam", "Chợ", "Thị", "Hà", "Nội", "Chu", "Vấp", "Phú-Cẩm"]
+    "Niên", "GD-TC", "Sơn", "Q.Nam", "Chợ", "Thị", "Hà", "Nội", "Chu", "Vấp", "Phú-Cẩm", "Quảng"]
 
 TIME_PREPROCESS = {
     "Ngày": ["Ngãy", "Ngãy:", "Ngãy", "Nosyn"],
@@ -116,9 +118,9 @@ PREFIX_PRIORITIZE = {
     "tong gia tri thanh toan": 7,
     "tiền thanh toán": 8,
     "tổng tiền": 12,
-    "tổng cộng (đã gồm vat)": 10,
-    "tổng tiền (vat)": 11,
-    "tổng cộng": 9,
+    "tổng cộng (đã gồm vat)": 9,
+    "tổng tiền (vat)": 10,
+    "tổng cộng": 11,
     "khách phải trả": 13,
     "cộng tiền hàng": 14,
     "thanh toán": 15,

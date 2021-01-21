@@ -272,6 +272,17 @@ def get_top_prices(list_number_prices, list_bbox_str, top=5):
             #     continue
             
             prices = list_bbox_str[i]
+            # list_monney = ["UND, VND, UNĐ, VNĐ, und, unđ, vnđ"]
+        
+            prices = prices.replace("UND", "")
+            prices = prices.replace("VND", "")
+            prices = prices.replace("UNĐ", "")
+            prices = prices.replace("VNĐ", "")
+            prices = prices.replace("und", "")
+            prices = prices.replace("unđ", "")
+            prices = prices.replace("vnđ", "")
+
+            print("PRICES: ", prices)
             # check 1 column
             if prices.find(":") != -1:
                 prices = prices.split(":")
@@ -322,7 +333,7 @@ def get_top_prices(list_number_prices, list_bbox_str, top=5):
 
             prices = float(prices)
 
-            if prices >= 500.0:
+            if prices >= 500.0 and prices < 1000000000.0:
                 if prices >= max_number:
                     max_number = prices
                     prices_top.append(i)
@@ -854,6 +865,8 @@ def get_submit_image(image_path, annot_path):
         
         # list_name = ' '.join(map(str, list_name))
         name_bbox = list_bbox[index_name]
+        if "site" in list_name:
+            list_name = ""
         output_dict[0] = [list_name, 'SELLER']
     except:
         print("Not found index!")
@@ -904,6 +917,12 @@ def get_submit_image(image_path, annot_path):
                     list_street[i] = street
                 
             list_street = ' '.join(map(str, list_street))
+
+            if "Enail" in list_street:
+                list_street = ""
+            if "Email" in list_street:
+                list_street = ""
+
             output_dict[250] = [list_street, 'ADDRESS']
                
         else:
@@ -934,9 +953,12 @@ def get_submit_image(image_path, annot_path):
                     list_street[i] = street
 
             list_street = ' '.join(map(str, list_street))
+            if "Enail" in list_street:
+                list_street = ""
+            if "Email" in list_street:
+                list_street = ""
             print("list_street final: ", list_street)
             output_dict[250] = [list_street, 'ADDRESS']
-            
 
     except Exception as e:
         print(e)
@@ -1013,7 +1035,7 @@ if __name__ == "__main__":
     # submit
         # create_result()
 
-    name = "mcocr_val_145115dbbem"
+    name = "mcocr_private_145120vvopk"
 
     annot_path = os.path.join('result_txt', name+".txt")
     image_path = os.path.join('upload', name+".jpg")
