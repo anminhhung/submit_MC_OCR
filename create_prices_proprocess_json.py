@@ -25,7 +25,7 @@ ADDRESS_POSTPROCESS = {
     "PHỐ": ["PHÓ", "PHÔ"],
     "MỎ": ["MÔ"],
     "Cẩm": ["Câm", "Cảm", "Căm", "Cảm", "chm", "Càm"],
-    "Phả": ["Phá", "Pha", "Phá"],
+    "Phả": ["Phá", "Pha", "Phá", "Pháng"],
     "Phả,": ["Pha,"],
     "CẨM": ["CÁM"],
     "Thôn": ["Thón"],
@@ -105,11 +105,14 @@ PREFIX_CHAR = {
     "(đá": ["(đã"],
     "TRẢ": ["TRẢI", "TRẢNG", "TRẮN", "TRẲN"],
     "Toán": ["Tron"],
-    "trả": ["trản"]
+    "trả": ["trản"],
+    "số": ["cố"],
+    "PHẢI": ["PHÃI"]
 }
 
 PREFIX_PREPROCESS = ["Tổng Cộng:", "Tổng tiền:", "Thành tiền:", "Tổng cộng (đã gồm VAT)", "Tiền khách trả:", "TỔNG:",\
-    "TONG GIA TRI THANH TOAN", "TIỀN KHÁCH TRẢ", "tong so tien thanh toan", "Tổng tiền thanh toán:", "TẠI QUẦY"]
+    "TONG GIA TRI THANH TOAN", "TIỀN KHÁCH TRẢ", "tong so tien thanh toan", "Tổng tiền thanh toán:", "TẠI QUẦY", "Tổng số thanh toán:", \
+    "TỔNG TIỀN PHẢI T.TOÁN"]
 
 PREFIX_PRIORITIZE = {
     "tổng số thanh toán": 1,

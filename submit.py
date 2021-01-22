@@ -698,6 +698,38 @@ def get_submit_image(image_path, annot_path):
             print("Not found index!")
             pass
     
+    # get name
+    index_name = get_index_name(list_bbox_str)
+    print("index_name: ", index_name)
+    name_bbox = None
+    try:
+        list_name = list_bbox_str[index_name]
+        if sellerMatch(list_name) != None:
+            list_name = sellerMatch(list_name)
+        print(list_name)
+        if list_name == 'Vin Commerce':
+            list_name = 'VinCommerce'
+        # print("list_name: ", list_name)
+        # list_name = list_name.split()
+        # for key, value in SELLER_POSTPROCESS.items():
+        #     print("key: {}, value: {}".format(key, value))
+        #     for ele in value:
+        #         for i in range(len(list_name)):
+        #             char = list_name[i]
+        #             if char == ele:
+        #                 list_name[i] = key
+        #                 print("key: ", key)
+        #                 break
+        
+        # list_name = ' '.join(map(str, list_name))
+        name_bbox = list_bbox[index_name]
+        if "site" in list_name:
+            list_name = ""
+        output_dict[0] = [list_name, 'SELLER']
+    except:
+        print("Not found index!")
+        pass
+
     # get prices
     top_number = 20
     prices_top, check_has_onecolumn, true_index = get_top_prices(list_number_prices, list_bbox_str, top_number)
@@ -707,7 +739,9 @@ def get_submit_image(image_path, annot_path):
         prefix_raw = prices[0]
         prices_value = prices[1]
         prices_value = prices_value.replace("JUNĐ", "VNĐ")
-        prices_value = prices_value.replace("JUND", "VNĐ")
+        prices_value = prices_value.replace("JUND", "VND")
+        prices_value = prices_value.replace("UND", "VND")
+        prices_value = prices_value.replace("UNĐ", "VNĐ")
         print("prices: ", prices)
 
         # preprocess value
@@ -788,7 +822,9 @@ def get_submit_image(image_path, annot_path):
                     tmp = False
                     prices_value = list_bbox_str[index_prices]
                     prices_value = prices_value.replace("JUNĐ", "VNĐ")
-                    prices_value = prices_value.replace("JUND", "VNĐ")
+                    prices_value = prices_value.replace("JUND", "VND")
+                    prices_value = prices_value.replace("UND", "VND")
+                    prices_value = prices_value.replace("UNĐ", "VNĐ")
 
                     for key, value in PRICES_CHAR.items():
                         for ele in value:
@@ -859,9 +895,37 @@ def get_submit_image(image_path, annot_path):
             list_result.sort(key = lambda x: x[0])
             print("list_result after sort: ", list_result)
             result_prices = list_result[0]
-            
-            output_dict[777] = [result_prices[1], 'TOTAL_COST']
-            output_dict[778] = [result_prices[2], 'TOTAL_COST']
+            i = 1
+            output_prefix = result_prices[1]
+            output_value = result_prices[2]
+            print("len list result: ", len(list_result))
+            while(i<len(list_result)):
+                current_prefix = list_result[i][1]
+                if current_prefix == output_prefix:
+                    raw_result = int(result_prices[2].replace(",", ".").replace(".", ""))
+                    print("list_result[0][2]: ", list_result[i][2])
+                    if "VNĐ" in list_result[i][2] or "VND" in list_result[i][2]:
+                        print("has VND")
+                        output_value = list_result[i][2]
+                        break
+                    else:
+                        new_result = int(list_result[i][2].replace(",", ".").replace(".", ""))
+                        print("raw_result: {}, new_result: {}".format(raw_result, new_result))
+                        if new_result > raw_result:
+                            output_value = list_result[i][2]
+                        else:
+                            output_value = result_prices[2]
+
+                i += 1
+
+            print("list_name: ", list_name)
+            if list_name == "VinCommerce":
+                output_value = output_value.replace(",", ".")
+
+            print("output_prefix: {}, output_value: {}".format(output_prefix, output_value))
+        
+            output_dict[777] = [output_prefix, 'TOTAL_COST']
+            output_dict[778] = [output_value, 'TOTAL_COST']
             flag_found = True
             
             if flag_found == False:
@@ -959,46 +1023,72 @@ def get_submit_image(image_path, annot_path):
                 list_result.sort(key = lambda x: x[0])
                 print("list_result after sort: ", list_result)
                 result_prices = list_result[0]
-                
-                output_dict[777] = [result_prices[1], 'TOTAL_COST']
-                output_dict[778] = [result_prices[2], 'TOTAL_COST']
+                i = 1
+                output_prefix = result_prices[1]
+                output_value = result_prices[2]
+                print("len list result: ", len(list_result))
+                while(i<len(list_result)):
+                    current_prefix = list_result[i][1]
+                    if current_prefix == output_prefix:
+                        raw_result = int(result_prices[2].replace(",", ".").replace(".", ""))
+                        print("list_result[0][2]: ", list_result[i][2])
+                        if "VNĐ" in list_result[i][2] or "VND" in list_result[i][2]:
+                            print("has VND")
+                            output_value = list_result[i][2]
+                            break
+                        else:
+                            new_result = int(list_result[i][2].replace(",", ".").replace(".", ""))
+                            print("raw_result: {}, new_result: {}".format(raw_result, new_result))
+                            if new_result > raw_result:
+                                output_value = list_result[i][2]
+                            else:
+                                output_value = result_prices[2]
+
+                    i += 1
+
+                if list_name == "VinCommerce":
+                    output_value = output_value.replace(",", ".")
+
+                print("output_prefix: {}, output_value: {}".format(output_prefix, output_value))
+                output_dict[777] = [output_prefix, 'TOTAL_COST']
+                output_dict[778] = [output_value, 'TOTAL_COST']
 
         except Exception as e:
             print(e)
             print("Not found index!")
             pass
 
-    # get name
-    index_name = get_index_name(list_bbox_str)
-    print("index_name: ", index_name)
-    name_bbox = None
-    try:
-        list_name = list_bbox_str[index_name]
-        if sellerMatch(list_name) != None:
-            list_name = sellerMatch(list_name)
-        print(list_name)
-        if list_name == 'Vin Commerce':
-            list_name = 'VinCommerce'
-        # print("list_name: ", list_name)
-        # list_name = list_name.split()
-        # for key, value in SELLER_POSTPROCESS.items():
-        #     print("key: {}, value: {}".format(key, value))
-        #     for ele in value:
-        #         for i in range(len(list_name)):
-        #             char = list_name[i]
-        #             if char == ele:
-        #                 list_name[i] = key
-        #                 print("key: ", key)
-        #                 break
+    # # get name
+    # index_name = get_index_name(list_bbox_str)
+    # print("index_name: ", index_name)
+    # name_bbox = None
+    # try:
+    #     list_name = list_bbox_str[index_name]
+    #     if sellerMatch(list_name) != None:
+    #         list_name = sellerMatch(list_name)
+    #     print(list_name)
+    #     if list_name == 'Vin Commerce':
+    #         list_name = 'VinCommerce'
+    #     # print("list_name: ", list_name)
+    #     # list_name = list_name.split()
+    #     # for key, value in SELLER_POSTPROCESS.items():
+    #     #     print("key: {}, value: {}".format(key, value))
+    #     #     for ele in value:
+    #     #         for i in range(len(list_name)):
+    #     #             char = list_name[i]
+    #     #             if char == ele:
+    #     #                 list_name[i] = key
+    #     #                 print("key: ", key)
+    #     #                 break
         
-        # list_name = ' '.join(map(str, list_name))
-        name_bbox = list_bbox[index_name]
-        if "site" in list_name:
-            list_name = ""
-        output_dict[0] = [list_name, 'SELLER']
-    except:
-        print("Not found index!")
-        pass
+    #     # list_name = ' '.join(map(str, list_name))
+    #     name_bbox = list_bbox[index_name]
+    #     if "site" in list_name:
+    #         list_name = ""
+    #     output_dict[0] = [list_name, 'SELLER']
+    # except:
+    #     print("Not found index!")
+    #     pass
 
     # get street
     try:
@@ -1204,7 +1294,7 @@ if __name__ == "__main__":
     # submit
         # create_result()
 
-    name = "mcocr_private_145120pjejw"
+    name = "mcocr_private_145121gntrz"
 
     annot_path = os.path.join('result_txt', name+".txt")
     image_path = os.path.join('upload', name+".jpg")

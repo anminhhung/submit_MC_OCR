@@ -11,8 +11,10 @@ from unidecode import unidecode
 from tqdm import tqdm
 from recognizers_text import Culture, ModelResult
 from recognizers_date_time import DateTimeRecognizer
-from create_prices_proprocess_json import PRICES_PREPROCESS, PRICES_CHAR, PREFIX_CHAR, ADDRESS_PREPROCESS, TIME_PREPROCESS, PREFIX_PRIORITIZE
-from sellerMatch import sellerMatch, output_Prices_Match, prefixMatch
+from create_prices_proprocess_json import PRICES_PREPROCESS, PRICES_CHAR, PREFIX_CHAR, ADDRESS_PREPROCESS,\
+                                         TIME_PREPROCESS, PREFIX_PRIORITIZE, ADDRESS_POSTPROCESS, SELLER_POSTPROCESS
+from sellerMatch import sellerMatch, output_Prices_Match, prefixMatch, addressMatch, findAddress, prefixPreprocess, findSeller
+from shapely.geometry import Polygon
 
 with open("field_dictionary/street.txt") as f:
     content = f.readlines()
@@ -42,9 +44,10 @@ model = DateTimeRecognizer(Culture.English).get_datetime_model()
 
 def postprocessTimestamp(raw_input):
     raw_input = raw_input.split('|||')
-    # print(raw_input)
+    print(raw_input)
     if len(raw_input) == 1:
         return extractTimestamp(raw_input[0])
+        # return raw_input[0]
     res = []
     day_symbol = ['/','-','.']
     has_colon = False
@@ -66,7 +69,7 @@ def postprocessTimestamp(raw_input):
         res.append(component)
         if component.find(':') != -1:
             has_colon = True
-    # print(res)
+    print("res: ", res) 
   
     
     if has_colon == False:
@@ -75,7 +78,7 @@ def postprocessTimestamp(raw_input):
     for x in res:
         tmp = [x.count(y) for y in day_symbol if x.find(y)!=-1]
         tmp1 = [1 for y in x.split() if any(map(str.isdigit, y))]
-        # print(x,x.split(),tmp1)
+        print(x,x.split(),tmp1)
         if x.find(':') != -1 and len(tmp1) > 1 and len(tmp) > 0 and sum(tmp) >= 2:
             return x
     
@@ -86,7 +89,7 @@ def postprocessTimestamp(raw_input):
             has_colon = True
         if len([1 for y in day_symbol if x.find(y)!=-1]) > 0:
             has_day = True
-        # print(has_day, has_colon)
+        print("has_day: {}, has_colon: {}".format(has_day, has_colon))
         if has_colon and has_day:
             return ' '.join(res[i-1:i+1])
 
@@ -270,6 +273,19 @@ def get_top_prices(list_number_prices, list_bbox_str, top=5):
             #     continue
             
             prices = list_bbox_str[i]
+            # list_monney = ["UND, VND, UNĐ, VNĐ, und, unđ, vnđ"]
+
+            prices = prices.replace("JUND", "")
+            prices = prices.replace("JUNĐ", "")
+            prices = prices.replace("UND", "")
+            prices = prices.replace("VND", "")
+            prices = prices.replace("UNĐ", "")
+            prices = prices.replace("VNĐ", "")
+            prices = prices.replace("und", "")
+            prices = prices.replace("unđ", "")
+            prices = prices.replace("vnđ", "")
+
+            print("PRICES: ", prices)
             # check 1 column
             if prices.find(":") != -1:
                 prices = prices.split(":")
@@ -320,7 +336,7 @@ def get_top_prices(list_number_prices, list_bbox_str, top=5):
 
             prices = float(prices)
 
-            if prices >= 50.0:
+            if prices >= 500.0 and prices < 1000000000.0:
                 if prices >= max_number:
                     max_number = prices
                     prices_top.append(i)
@@ -382,7 +398,7 @@ def get_street(height_img, width_img, name_box, list_bbox, list_index_street):
     return bbox_index
 
 def get_prices(height_img, width_img, prices_box, list_bbox, list_bbox_str):
-    # check parallel
+    # check parallel 
     list_cosine = []
     list_index_cosine = []
     vector_gt = get_vector((0, height_img), (width_img, height_img))
@@ -401,13 +417,16 @@ def get_prices(height_img, width_img, prices_box, list_bbox, list_bbox_str):
 
     return bbox_index
 
-def get_index_street(list_bbox_str, number_line=6):
+def get_index_street(list_bbox_str, number_line=7):
     list_street = []
     print("Get index_streeet")
     for i in range(number_line):
         content = list_bbox_str[i].lower()
+        new_content = findAddress(content)
+        print(new_content)
         for word in LIST_STREET_DEF:
             if content.find(word) != -1:
+        # if new_content != None:
                 flag = False
                 for char in LIST_PHONE_DEF:
                     if content.find(char) != -1:
@@ -420,6 +439,87 @@ def get_index_street(list_bbox_str, number_line=6):
                         break
     print("list street: ", list_street)
     return list_street
+
+# format bbox:  [[66, 1222], [67, 1195], [369, 1209], [368, 1236]]
+def get_line_box(bbox, height, width):
+    center_bbox = get_center(bbox)
+    point1 = None
+    point2 = None
+    point3 = None
+    point4 = None
+    for point in bbox:
+        if point[0] < center_bbox[0] and point[1] < center_bbox[1]:
+            point1 = [0, point[1]]
+        elif point[0] > center_bbox[0] and point[1] < center_bbox[1]:
+            point2 = [width, point[1]]
+        elif point[0] < center_bbox[0] and point[1] > center_bbox[1]:
+            point3 = [0, point[1]]
+        else:
+            point4 = [width, point[1]]
+    
+    return [point1, point2, point3, point4]
+
+def check_two_box_intersec(bbox1, bbox2, height, width):
+    line_bbox1 = get_line_box(bbox1, height, width)
+    line_bbox2 = get_line_box(bbox2, height, width)
+
+    polygon_bbox1 = Polygon(line_bbox1)
+    polygon_bbox2 = Polygon(line_bbox2)
+
+    if polygon_bbox1.intersects(polygon_bbox2):
+        return True
+  
+    return False
+
+def check_two_box_one_line(bbox1, bbox2, height, width):
+    line_bbox1 = get_line_box(bbox1, height, width)
+    line_bbox2 = get_line_box(bbox2, height, width)
+
+    center_line_bbox1 = get_center(line_bbox1)
+    center_line_bbox2 = get_center(line_bbox2)
+
+    print("center line bbox1: ", center_line_bbox1)
+    print("center line bbox2: ", center_line_bbox2)
+
+    threshold = abs(center_line_bbox1[1] - center_line_bbox2[1])
+    print("abs two center: ", threshold)
+    if threshold < 5:
+        return True
+
+    return False
+
+# format list output street: [[index, list_street]]
+def merge_and_sort_street_box(list_output_street, list_bbox, height, width):
+    i = 0
+    new_list_output_street = []
+    print("len list output street: ", len(list_output_street))
+    while i<len(list_output_street):
+        print("i: ", i)
+        # print("list output street: ", list_output_street[i])
+        if i+1 < len(list_output_street):
+            if check_two_box_one_line(list_bbox[list_output_street[i][0]], list_bbox[list_output_street[i+1][0]], height, width):
+                list_tmp = [list_output_street[i], list_output_street[i+1]]
+                print("list_tmp before sort: ", list_tmp)
+                list_tmp.sort(key = lambda x: get_center(list_bbox[x[0]]))
+                print("list_tmp after sort: ", list_tmp)
+                cnt = i
+                for output in list_tmp:
+                    if output not in new_list_output_street:
+                        new_list_output_street.append(output)
+                        list_output_street[cnt] = output
+                        cnt += 1
+            else:
+                print("list output street not one line: ", list_output_street[i])
+                if list_output_street[i] not in new_list_output_street:
+                    new_list_output_street.append(list_output_street[i])
+        else:
+            print("list output street condition i+1> len: ", list_output_street[i])
+            print("new list output street: ", new_list_output_street)
+            if list_output_street[i] not in new_list_output_street:
+                new_list_output_street.append(list_output_street[i])
+        i += 1
+    
+    return new_list_output_street
 
 def get_index_name(list_bbox_str, number_line=6):
     # for i in range(number_line):
@@ -442,12 +542,22 @@ def get_index_name(list_bbox_str, number_line=6):
         print("content in get index name: ", content)
         for word in LIST_SELLER_DEF:
             if content.find(word) != -1:
+        # new_content = findSeller(content)
+                # if new_content != None:
                 flag = True
                 break
         
         if flag == True:
             print("index name: ", i)
             return i
+    
+    for i in range(number_line):
+        # flag = False
+        content = list_bbox_str[i].lower()
+        new_content = findSeller(content)
+        if new_content != None:
+           return i
+                
     
     return None
 
@@ -463,12 +573,15 @@ def get_submit_image(image_path, annot_path):
     list_number_prices, index_day_bbox, flag, cuong_result= get_day(list_bbox_char, list_bbox_str)
     # day = list_bbox_str[index_day_bbox]
     # print(index_day_bbox)
+    list_index_bbox_time = []
     if flag == True:
         try:
-            cnt = 0
+            list_output_time = []
             print("CUong result: ", cuong_result)
-            for i in cuong_result:
-                day = list_bbox_str[i]
+            check_len_list_day = 0
+            for index_time in cuong_result:
+                print("NUMBER INDEX: ", index_time)
+                day = list_bbox_str[index_time]
                 day = day.split()
                 print("day before: ", day)
                 for key, value in TIME_PREPROCESS.items():
@@ -485,7 +598,35 @@ def get_submit_image(image_path, annot_path):
                                 break
                 
                 day = ' '.join(map(str, day))
-                day = postprocessTimestamp(day)
+                print("DAY before post process", day)
+
+                list_time = day.split()
+                list_block_re_extract = ["Ngày", "bán"]
+
+                check_block = False
+                for my_time in list_time:
+                    if my_time in list_block_re_extract:
+                        check_block = True 
+                        break 
+                
+                if check_block == False:
+                    if len(list_time) > 3:
+                        print("len list time: ", len(list_time))
+                        print("list_time: ", list_time)
+                        print("day before re extracttime: ", day)
+                        day = extractTimestamp(day)
+
+                day = day.replace(".", ":")
+                day = day.replace("bản", "bán")
+
+                # day_tmp = day.lower()
+                # print("DAY tmp before post process", day_tmp)
+
+                # if "thời" not in day_tmp or "print" not in day_tmp:
+                #     print("Don't have thoi")
+                #     day = postprocessTimestamp(day)
+
+                # print("DAY after post process: ", day)
 
                 # remove long string not have [",", ":", "/"]
                 # day = day.split()
@@ -508,10 +649,46 @@ def get_submit_image(image_path, annot_path):
                 # day = ' '.join(map(str, day))
                 ############# 
 
+                print("NUMBER INDEX: ", index_time)
                 print("day after append: ", day)
-                output_dict[331+cnt] = [day, 'TIMESTAMP']
+
+                day_tmp = day.split(" ")
+                print("day tmp: ", day_tmp)
+                new_day = []
+                for tmp in day_tmp:
+                    if len(tmp) < 11:
+                        new_day.append(tmp)
+                    elif ":" in tmp or "/" in tmp:
+                        new_day.append(tmp)
+
+                new_day = ' '.join(map(str, new_day))
+                print("new day after join: ", new_day)
+                day = new_day
+
+                if check_len_list_day > 2:
+                    break
+                
+                list_output_time.append([index_time, day])
+                list_index_bbox_time.append(index_time)
+
+            list_output_time.sort(key = lambda x: get_center(list_bbox[x[0]]))
+            print("BBOX: ", list_bbox[list_output_time[0][0]])
+            if len(list_output_time) == 3:
+                if check_two_box_intersec(list_bbox[list_output_time[0][0]], list_bbox[list_output_time[1][0]], height, width):
+                    if check_two_box_intersec(list_bbox[list_output_time[0][0]], list_bbox[list_output_time[2][0]], height, width) == False:
+                        list_output_time.pop(2)
+                else:
+                    if check_two_box_intersec(list_bbox[list_output_time[1][0]], list_bbox[list_output_time[2][0]], height, width) == True:
+                        list_output_time.pop(0)
+
+            print("LIST OUTPUT TIME: ", list_output_time)
+            cnt = 0
+            for output_time in list_output_time:
+                output_dict[331+cnt] = [output_time[1], 'TIMESTAMP']
+                check_len_list_day += 1
                 cnt += 1
-        except:
+        except Exception as e:
+            print(e)
             print("Not found index!")
             pass
     else:
@@ -529,6 +706,8 @@ def get_submit_image(image_path, annot_path):
         prices = list_bbox_str[true_index].split(":")
         prefix_raw = prices[0]
         prices_value = prices[1]
+        prices_value = prices_value.replace("JUNĐ", "VNĐ")
+        prices_value = prices_value.replace("JUND", "VNĐ")
         print("prices: ", prices)
 
         # preprocess value
@@ -569,7 +748,11 @@ def get_submit_image(image_path, annot_path):
                     
             if tmp == True:
                 break
-        # print("prefix_raw: ", prefix_raw)
+
+        prefix_raw_preprocess = prefixPreprocess(prefix_raw)
+        if prefix_raw_preprocess != 'Nomatching':
+            prefix_raw = prefix_raw_preprocess
+        print("prefix_raw: ", prefix_raw_preprocess)
         prices = prefix_raw + '|||' + prices_value
         output_dict[777] = [prefix_raw, 'TOTAL_COST']
         output_dict[778] = [prices_value, 'TOTAL_COST']
@@ -604,6 +787,9 @@ def get_submit_image(image_path, annot_path):
                     # preprocess
                     tmp = False
                     prices_value = list_bbox_str[index_prices]
+                    prices_value = prices_value.replace("JUNĐ", "VNĐ")
+                    prices_value = prices_value.replace("JUND", "VNĐ")
+
                     for key, value in PRICES_CHAR.items():
                         for ele in value:
                             index = prices_value.find(ele)
@@ -643,7 +829,13 @@ def get_submit_image(image_path, annot_path):
                             break
                         
                     print("index prices: ", index_prices)
+                    print("prefix_raw after preprocess: ", prefix_raw)
                     # prices = prefix_raw + '|||' + prices_value
+                    prefix_raw_preprocess = prefixPreprocess(prefix_raw)
+                    if prefix_raw_preprocess != 'Nomatching':
+                        prefix_raw = prefix_raw_preprocess
+
+                    print("PREFIX RAW: ", prefix_raw)
                     if prefix_raw == 'Tiền mặt':
                         prefix_raw = 'Tổng'
                     if prefix_raw == 'VNĐ':
@@ -684,7 +876,8 @@ def get_submit_image(image_path, annot_path):
                     #  kiem tra list prices uu tien
                     flag = False
                     print("prefix: ", prefix)
-                    prefix = prefixMatch(prefix)
+                    if prefixMatch(prefix) != None:
+                        prefix = prefixMatch(prefix)
                     print("prefix after: ", prefix)
                     print("prices: ", list_bbox_str[index_prices])
                     if prefix != None:
@@ -737,6 +930,11 @@ def get_submit_image(image_path, annot_path):
                                 break
                             
                         print("index prices: ", index_prices)
+                        print("prefix_raw after preprocess: ", prefix_raw)
+                        prefix_raw_preprocess = prefixPreprocess(prefix_raw)
+                        if prefix_raw_preprocess != 'Nomatching':
+                            prefix_raw = prefix_raw_preprocess
+                        print("PREFIX RAW: ", prefix_raw)
                         # prices = prefix_raw + '|||' + prices_value
                         if prefix_raw == 'Tiền mặt':
                             prefix_raw = 'Tổng'
@@ -772,14 +970,18 @@ def get_submit_image(image_path, annot_path):
 
     # get name
     index_name = get_index_name(list_bbox_str)
-    # print(index_name)
+    print("index_name: ", index_name)
     name_bbox = None
     try:
         list_name = list_bbox_str[index_name]
-        list_name = sellerMatch(list_name)
+        if sellerMatch(list_name) != None:
+            list_name = sellerMatch(list_name)
+        print(list_name)
+        if list_name == 'Vin Commerce':
+            list_name = 'VinCommerce'
         # print("list_name: ", list_name)
         # list_name = list_name.split()
-        # for key, value in SELLER_PREPROCESS.items():
+        # for key, value in SELLER_POSTPROCESS.items():
         #     print("key: {}, value: {}".format(key, value))
         #     for ele in value:
         #         for i in range(len(list_name)):
@@ -791,6 +993,8 @@ def get_submit_image(image_path, annot_path):
         
         # list_name = ' '.join(map(str, list_name))
         name_bbox = list_bbox[index_name]
+        if "site" in list_name:
+            list_name = ""
         output_dict[0] = [list_name, 'SELLER']
     except:
         print("Not found index!")
@@ -822,40 +1026,108 @@ def get_submit_image(image_path, annot_path):
             list_street = list_bbox_str[list_index_street[0]]
             list_street = list_street.split()
             print("list street: ", list_street)
-            for key, value in ADDRESS_PREPROCESS.items():
+
+            # post process
+            for key, value in ADDRESS_POSTPROCESS.items():
                 for ele in value:
                     for i in range(len(list_street)):
                         char = list_street[i]
                         if char == ele:
                             list_street[i] = key
                             break
-            list_street = ' '.join(map(str, list_street))
-            output_dict[250] = [list_street, 'ADDRESS']
             
-        
+            # preprocess
+            for i in range(len(list_street)):
+                street = list_street[i]
+                print(street)
+                street = addressMatch(street)
+                if street != None:
+                    list_street[i] = street
+                
+            list_street = ' '.join(map(str, list_street))
+
+            if "Enail" in list_street:
+                list_street = None 
+            if "Email" in list_street:
+                list_street = None 
+            if "GIAO" in list_street:
+                list_street = None
+            if "CHONG THƯỜNG" in  list_street:
+                list_street = None
+            if "Phục vụ" in list_street:
+                list_street = None
+
+            if list_street != None:
+                output_dict[250] = [list_street, 'ADDRESS']
+               
         else:
             # remove seller in list_index_street
             for i in list_index_street:
                 print("list_bbox_str[i]: ", list_bbox_str[i])
                 if list_bbox_str[i] == list_bbox_str[index_name]:
                     list_index_street.remove(i)
-
-            index = get_street(height, width, name_bbox, list_bbox, list_index_street)
-            list_street = list_bbox_str[index]
-            list_street = list_street.split()
-            print("list street: ", list_street)
-            for key, value in ADDRESS_PREPROCESS.items():
-                for ele in value:
-                    for i in range(len(list_street)):
-                        char = list_street[i]
-                        if char == ele:
-                            list_street[i] = key
-                            break
-
-            list_street = ' '.join(map(str, list_street))
-            print("list_street final: ", list_street)
-            output_dict[250] = [list_street, 'ADDRESS']
             
+            # remove time in list_index_stret
+            for i in list_index_street:
+                if i in list_index_bbox_time:
+                    list_index_street.remove(i)
+
+            # index = get_street(height, width, name_bbox, list_bbox, list_index_street)
+            cnt_street = 1
+            list_output_street = []
+            for index in list_index_street:
+                list_street = list_bbox_str[index]
+                list_street = list_street.split()
+                print("list street: ", list_street)
+                # post process
+                for key, value in ADDRESS_POSTPROCESS.items():
+                    for ele in value:
+                        for i in range(len(list_street)):
+                            char = list_street[i]
+                            if char == ele:
+                                list_street[i] = key
+                                break
+                
+                # preprocess
+                for i in range(len(list_street)):
+                    street = list_street[i]
+                    street = addressMatch(street)
+                    if street != None:
+                        list_street[i] = street
+
+                list_street = ' '.join(map(str, list_street))
+                if "Enail" in list_street:
+                    list_street = None
+                if "Email" in list_street:
+                    list_street = None
+                if "GIAO" in list_street:
+                    list_street = None
+                if "CHONG THƯỜNG" in  list_street:
+                    list_street = None
+                if "Phục vụ" in list_street:
+                    list_street = None
+
+                print("list_street final: ", list_street)
+                if list_street != None:
+                    list_street_tmp = list_street.split(" ")
+                    if len(list_street_tmp) > 20:
+                        list_street_tmp = list_street_tmp[:6]
+                        list_street_tmp = ' '.join(map(str, list_street_tmp))
+                        list_street = list_street_tmp
+
+                    list_output_street.append([index, list_street])
+                # output_dict[250+cnt_street] = [list_street, 'ADDRESS']
+                # cnt_street += 1
+            
+            # list_output_street.sort(key = lambda x: get_center(list_bbox[x[0]]))
+            # list_output_street.sort(key = lambda x: get_center(list_bbox[x[0]])[1])
+            print("list output street before merge&sort: ", list_output_street)
+            list_output_street = merge_and_sort_street_box(list_output_street, list_bbox, height, width)
+            print("list output street after merge&sort: ", list_output_street)
+            for output_street in list_output_street:
+                if "VM+" not in output_street[1]:
+                    output_dict[250+cnt_street] = [output_street[1], 'ADDRESS']
+                    cnt_street += 1
 
     except Exception as e:
         print(e)
@@ -932,7 +1204,7 @@ if __name__ == "__main__":
     # submit
         # create_result()
 
-    name = "mcocr_val_145115czygu"
+    name = "mcocr_private_145120pjejw"
 
     annot_path = os.path.join('result_txt', name+".txt")
     image_path = os.path.join('upload', name+".jpg")
@@ -944,4 +1216,3 @@ if __name__ == "__main__":
     
     print(result_field)
     print(result_value)
- 
