@@ -702,6 +702,7 @@ def get_submit_image(image_path, annot_path):
     index_name = get_index_name(list_bbox_str)
     print("index_name: ", index_name)
     name_bbox = None
+    list_name = None
     try:
         list_name = list_bbox_str[index_name]
         if sellerMatch(list_name) != None:
@@ -821,11 +822,12 @@ def get_submit_image(image_path, annot_path):
                     # preprocess
                     tmp = False
                     prices_value = list_bbox_str[index_prices]
+                    print("prices value before remove: ", prices_value)
                     prices_value = prices_value.replace("JUNĐ", "VNĐ")
                     prices_value = prices_value.replace("JUND", "VND")
                     prices_value = prices_value.replace("UND", "VND")
                     prices_value = prices_value.replace("UNĐ", "VNĐ")
-
+                    print("prices value after remove: ", prices_value)
                     for key, value in PRICES_CHAR.items():
                         for ele in value:
                             index = prices_value.find(ele)
@@ -919,8 +921,9 @@ def get_submit_image(image_path, annot_path):
                 i += 1
 
             print("list_name: ", list_name)
-            if list_name == "VinCommerce":
-                output_value = output_value.replace(",", ".")
+            if list_name != None:
+                if list_name == "VinCommerce":
+                    output_value = output_value.replace(",", ".")
 
             print("output_prefix: {}, output_value: {}".format(output_prefix, output_value))
         
@@ -1046,8 +1049,9 @@ def get_submit_image(image_path, annot_path):
 
                     i += 1
 
-                if list_name == "VinCommerce":
-                    output_value = output_value.replace(",", ".")
+                if list_name != None:
+                    if list_name == "VinCommerce":
+                        output_value = output_value.replace(",", ".")
 
                 print("output_prefix: {}, output_value: {}".format(output_prefix, output_value))
                 output_dict[777] = [output_prefix, 'TOTAL_COST']
@@ -1146,7 +1150,7 @@ def get_submit_image(image_path, annot_path):
                 list_street = None
             if "Phục vụ" in list_street:
                 list_street = None
-
+            
             if list_street != None:
                 output_dict[250] = [list_street, 'ADDRESS']
                
@@ -1294,7 +1298,7 @@ if __name__ == "__main__":
     # submit
         # create_result()
 
-    name = "mcocr_private_145121gntrz"
+    name = "mcocr_private_145121ucwhf"
 
     annot_path = os.path.join('result_txt', name+".txt")
     image_path = os.path.join('upload', name+".jpg")
@@ -1306,4 +1310,3 @@ if __name__ == "__main__":
     
     print(result_field)
     print(result_value)
- 

@@ -31,7 +31,7 @@ ADDRESS_POSTPROCESS = {
     "Thôn": ["Thón"],
     "QNH": ["ONH", "NHI", "VIH"],
     "+": ["?", "4"],
-    "VM+": ["VIÀ", "VM4", "VIM", "VM", "VINT", "MMA", "VINH", "Vhit", "VMA", "VIN4"],
+    "VM+": ["VIÀ", "VM4", "VIM", "VM", "VINT", "MMA", "VINH", "Vhit", "VMA", "VIN4", "VIA4"],
     "Phú": ["Phủ", "Phý"],
     "Niên": ["Nien"],
     "Số": ["shi", "Só"],
@@ -55,12 +55,13 @@ ADDRESS_POSTPROCESS = {
     "Quảng": ["Quống"],
     "CTY": ["PHETY"],
     "Mỹ": ["Miy"],
-    "Tổ": ["Tô"],
-    "Ninh": ["tranh"]
+    "Tổ": ["Tô", "T6"],
+    "Ninh": ["tranh"],
+    "Khu": ["Chu"]
 }
 
 ADDRESS_PREPROCESS = ["ĐC", "đc", "ĐC:" "PHẢ", "Sủi", "Lâm", "PHỐ", "MỎ", "Cẩm", "Phả", "CẨM", "Thôn", "Phú", \
-    "Niên", "GD-TC", "Sơn", "Q.Nam", "Chợ", "Thị", "Hà", "Nội", "Chu", "Vấp", "Phú-Cẩm", "Quảng", "Mỹ", "VM+"]
+    "Niên", "GD-TC", "Sơn", "Q.Nam", "Chợ", "Thị", "Hà", "Nội", "Chu", "Vấp", "Phú-Cẩm", "Quảng", "Mỹ", "VM+", "Khu", "khu"]
 
 TIME_PREPROCESS = {
     "Ngày": ["Ngãy", "Ngãy:", "Ngãy", "Nosyn"],
@@ -83,16 +84,16 @@ PRICES_PREPROCESS = {
     "TIỀN": ["TIỀN", "TIẾN", "TIÊN", "TIỂN", "TIỄN", "TIỆN"],
     "TOÁN": ["TOÁN", "TOAN", "TOÀN", "TOẢN", "TOÃN", "TOẠN"],
     "Total": ["Total", "Sub Total", "sub total", "Gross Total", "GROSS TOTAL"],
-    "": ["2", "1", "THÁN"],
+    "": ["2", "1", "THÁN", "1991"],
     "Tong": ["Tong", "Tonn", "Tono"],
     "quầy": ["quáy.", "quáy", "quây"],
-    "QUẦY": ["QUÁY.", "QUÁY", "QUÂY"]
+    "QUẦY": ["QUÁY.", "QUÁY", "QUÂY"],
 }
 
 PRICES_CHAR = {
     "VAT": ["VAT", "vat"],
     "đ": ["d", "đ"],
-    "Đ": ["D", "Đ"],
+    "Đ": ["Đ"],
     ",": ["."]
 }
 
@@ -110,8 +111,8 @@ PREFIX_CHAR = {
     "PHẢI": ["PHÃI"]
 }
 
-PREFIX_PREPROCESS = ["Tổng Cộng:", "Tổng tiền:", "Thành tiền:", "Tổng cộng (đã gồm VAT)", "Tiền khách trả:", "TỔNG:",\
-    "TONG GIA TRI THANH TOAN", "TIỀN KHÁCH TRẢ", "tong so tien thanh toan", "Tổng tiền thanh toán:", "TẠI QUẦY", "Tổng số thanh toán:", \
+PREFIX_PREPROCESS = ["Tổng Cộng:", "Tổng tiền:", "Thành tiền:", "Tổng cộng (đã gồm VAT)", "Tiền     hách trả:", "TỔNG:",\
+    "TONG GIA TRI THANH TOAN", "TIỀN KHÁCH TRẢ", "Tong so tien thanh toan", "Tổng tiền thanh toán:", "TẠI QUẦY", "Tổng số thanh toán:", \
     "TỔNG TIỀN PHẢI T.TOÁN"]
 
 PREFIX_PRIORITIZE = {
