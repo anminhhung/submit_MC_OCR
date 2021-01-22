@@ -114,3 +114,7 @@ hasa
 bbq
 buffet
 big c
+store
+lake
+bách hóa xanh
+hóa

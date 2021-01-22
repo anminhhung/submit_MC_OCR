@@ -12,7 +12,7 @@ SELLER_PREPROCESS = ["MINIMART ANAN", "VinCommerce", "Payoo", "coopsmile", "THE 
     "CIRCLE K VIETNAM", "BIBO MART", "Laha Café", "THỨC COFFEE", "KAITEA", "Saigon Co.op", \
     "THE MOOSE & ROO SMOKEHOUSE", "Satra Group", "Phúc Anh Minimart", "Guitar Cafe", "Bakery café", \
     "Vietcombank", "MILANO COFFEE", "PARIS GATEAUX 19", "BRGMART", "MARUMART", "SIÊU THỊ MINH LOAN", \
-    "SCTC CÔ THỎ 104 TRẦN PHÚ - CẨM PHẢ", "CTY CP SÁCH & TBTH QUẢNG NINH", "Phương Ốc Hải Phòng"]
+    "SCTC CÔ THỎ 104 TRẦN PHÚ - CẨM PHẢ", "CTY CP SÁCH & TBTH QUẢNG NINH", "Phương Ốc Hải Phòng", "Store :LAKE VIEW"]
 
 ADDRESS_POSTPROCESS = {
     "ĐC": ["ĐO", "Đ0", "Đo"],
@@ -132,7 +132,8 @@ PREFIX_PRIORITIZE = {
     "tiền khách trả": 17,
     "tiền khách đưa": 18,
     "tổng": 19,
-    "total": 25
+    "total": 25,
+    "cộng": 26,
 }
 
 a = "TỐNG TIẾN PHẢI T. TOÀN"

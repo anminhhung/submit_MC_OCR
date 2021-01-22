@@ -468,7 +468,24 @@ def check_two_box_intersec(bbox1, bbox2, height, width):
 
     if polygon_bbox1.intersects(polygon_bbox2):
         return True
-    
+  
+    return False
+
+def check_two_box_one_line(bbox1, bbox2, height, width):
+    line_bbox1 = get_line_box(bbox1, height, width)
+    line_bbox2 = get_line_box(bbox2, height, width)
+
+    center_line_bbox1 = get_center(line_bbox1)
+    center_line_bbox2 = get_center(line_bbox2)
+
+    print("center line bbox1: ", center_line_bbox1)
+    print("center line bbox2: ", center_line_bbox2)
+
+    threshold = abs(center_line_bbox1[1] - center_line_bbox2[1])
+    print("abs two center: ", threshold)
+    if threshold < 5:
+        return True
+
     return False
 
 # format list output street: [[index, list_street]]
@@ -478,18 +495,28 @@ def merge_and_sort_street_box(list_output_street, list_bbox, height, width):
     print("len list output street: ", len(list_output_street))
     while i<len(list_output_street):
         print("i: ", i)
+        # print("list output street: ", list_output_street[i])
         if i+1 < len(list_output_street):
-            if check_two_box_intersec(list_bbox[list_output_street[i][0]], list_bbox[list_output_street[i+1][0]], height, width):
+            if check_two_box_one_line(list_bbox[list_output_street[i][0]], list_bbox[list_output_street[i+1][0]], height, width):
                 list_tmp = [list_output_street[i], list_output_street[i+1]]
+                print("list_tmp before sort: ", list_tmp)
                 list_tmp.sort(key = lambda x: get_center(list_bbox[x[0]]))
+                print("list_tmp after sort: ", list_tmp)
+                cnt = i
                 for output in list_tmp:
-                    new_list_output_street.append(output)
+                    if output not in new_list_output_street:
+                        new_list_output_street.append(output)
+                        list_output_street[cnt] = output
+                        cnt += 1
             else:
-                # [list_output_street[i-1], list_output_street[i]].sort(key = lambda x: get_center(list_bbox[x[0]])[1])
-                new_list_output_street.append(list_output_street[i])
+                print("list output street not one line: ", list_output_street[i])
+                if list_output_street[i] not in new_list_output_street:
+                    new_list_output_street.append(list_output_street[i])
         else:
-            new_list_output_street.append(list_output_street[i])
-
+            print("list output street condition i+1> len: ", list_output_street[i])
+            print("new list output street: ", new_list_output_street)
+            if list_output_street[i] not in new_list_output_street:
+                new_list_output_street.append(list_output_street[i])
         i += 1
     
     return new_list_output_street
@@ -624,9 +651,23 @@ def get_submit_image(image_path, annot_path):
 
                 print("NUMBER INDEX: ", index_time)
                 print("day after append: ", day)
+
+                day_tmp = day.split(" ")
+                print("day tmp: ", day_tmp)
+                new_day = []
+                for tmp in day_tmp:
+                    if len(tmp) < 11:
+                        new_day.append(tmp)
+                    elif ":" in tmp or "/" in tmp:
+                        new_day.append(tmp)
+
+                new_day = ' '.join(map(str, new_day))
+                print("new day after join: ", new_day)
+                day = new_day
+
                 if check_len_list_day > 2:
                     break
-                    
+                
                 list_output_time.append([index_time, day])
                 list_index_bbox_time.append(index_time)
 
@@ -929,7 +970,7 @@ def get_submit_image(image_path, annot_path):
 
     # get name
     index_name = get_index_name(list_bbox_str)
-    # print(index_name)
+    print("index_name: ", index_name)
     name_bbox = None
     try:
         list_name = list_bbox_str[index_name]
@@ -1013,6 +1054,8 @@ def get_submit_image(image_path, annot_path):
                 list_street = None
             if "CHONG THƯỜNG" in  list_street:
                 list_street = None
+            if "Phục vụ" in list_street:
+                list_street = None
 
             if list_street != None:
                 output_dict[250] = [list_street, 'ADDRESS']
@@ -1061,16 +1104,25 @@ def get_submit_image(image_path, annot_path):
                     list_street = None
                 if "CHONG THƯỜNG" in  list_street:
                     list_street = None
+                if "Phục vụ" in list_street:
+                    list_street = None
+
                 print("list_street final: ", list_street)
                 if list_street != None:
+                    list_street_tmp = list_street.split(" ")
+                    if len(list_street_tmp) > 20:
+                        list_street_tmp = list_street_tmp[:6]
+                        list_street_tmp = ' '.join(map(str, list_street_tmp))
+                        list_street = list_street_tmp
+
                     list_output_street.append([index, list_street])
                 # output_dict[250+cnt_street] = [list_street, 'ADDRESS']
                 # cnt_street += 1
             
-            list_output_street.sort(key = lambda x: get_center(list_bbox[x[0]]))
+            # list_output_street.sort(key = lambda x: get_center(list_bbox[x[0]]))
             # list_output_street.sort(key = lambda x: get_center(list_bbox[x[0]])[1])
             print("list output street before merge&sort: ", list_output_street)
-            # list_output_street = merge_and_sort_street_box(list_output_street, list_bbox, height, width)
+            list_output_street = merge_and_sort_street_box(list_output_street, list_bbox, height, width)
             print("list output street after merge&sort: ", list_output_street)
             for output_street in list_output_street:
                 if "VM+" not in output_street[1]:
@@ -1152,7 +1204,7 @@ if __name__ == "__main__":
     # submit
         # create_result()
 
-    name = "mcocr_private_145120wnsla"
+    name = "mcocr_private_145120pjejw"
 
     annot_path = os.path.join('result_txt', name+".txt")
     image_path = os.path.join('upload', name+".jpg")
