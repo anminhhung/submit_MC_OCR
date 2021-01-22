@@ -16,7 +16,7 @@ SELLER_PREPROCESS = ["MINIMART ANAN", "VinCommerce", "Payoo", "coopsmile", "THE 
 
 ADDRESS_POSTPROCESS = {
     "ĐC": ["ĐO", "Đ0", "Đo"],
-    "ĐC:": ["ĐO:", "Đ0:", "Đ0:", "Đó:"],
+    "ĐC:": ["ĐO:", "Đ0:", "Đ0:", "Đó:", "Đó"],
     "đc": ["đo", "đ0"],
     "đc:": ["đo:", "đ0:", "đư:", "đu:"],
     "PHẢ": ["PHÀ", "PHI", "PHẢN"],
@@ -55,7 +55,8 @@ ADDRESS_POSTPROCESS = {
     "Quảng": ["Quống"],
     "CTY": ["PHETY"],
     "Mỹ": ["Miy"],
-    "Tổ": ["Tô"]
+    "Tổ": ["Tô"],
+    "Ninh": ["tranh"]
 }
 
 ADDRESS_PREPROCESS = ["ĐC", "đc", "ĐC:" "PHẢ", "Sủi", "Lâm", "PHỐ", "MỎ", "Cẩm", "Phả", "CẨM", "Thôn", "Phú", \
@@ -113,6 +114,7 @@ PREFIX_PREPROCESS = ["Tổng Cộng:", "Tổng tiền:", "Thành tiền:", "Tổ
 PREFIX_PRIORITIZE = {
     "tổng số thanh toán": 1,
     "tổng thanh toán": 2,
+    "tổng thanh toán:": 2,
     "tổng tiền phải t.toán": 4,
     "tổng tiền thanh toán": 4,
     "tổng tiền sau km": 5,

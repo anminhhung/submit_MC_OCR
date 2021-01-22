@@ -274,7 +274,9 @@ def get_top_prices(list_number_prices, list_bbox_str, top=5):
             
             prices = list_bbox_str[i]
             # list_monney = ["UND, VND, UNĐ, VNĐ, und, unđ, vnđ"]
-        
+
+            prices = prices.replace("JUND", "")
+            prices = prices.replace("JUNĐ", "")
             prices = prices.replace("UND", "")
             prices = prices.replace("VND", "")
             prices = prices.replace("UNĐ", "")
@@ -469,6 +471,29 @@ def check_two_box_intersec(bbox1, bbox2, height, width):
     
     return False
 
+# format list output street: [[index, list_street]]
+def merge_and_sort_street_box(list_output_street, list_bbox, height, width):
+    i = 0
+    new_list_output_street = []
+    print("len list output street: ", len(list_output_street))
+    while i<len(list_output_street):
+        print("i: ", i)
+        if i+1 < len(list_output_street):
+            if check_two_box_intersec(list_bbox[list_output_street[i][0]], list_bbox[list_output_street[i+1][0]], height, width):
+                list_tmp = [list_output_street[i], list_output_street[i+1]]
+                list_tmp.sort(key = lambda x: get_center(list_bbox[x[0]]))
+                for output in list_tmp:
+                    new_list_output_street.append(output)
+            else:
+                # [list_output_street[i-1], list_output_street[i]].sort(key = lambda x: get_center(list_bbox[x[0]])[1])
+                new_list_output_street.append(list_output_street[i])
+        else:
+            new_list_output_street.append(list_output_street[i])
+
+        i += 1
+    
+    return new_list_output_street
+
 def get_index_name(list_bbox_str, number_line=6):
     # for i in range(number_line):
     #     flag = False
@@ -521,6 +546,7 @@ def get_submit_image(image_path, annot_path):
     list_number_prices, index_day_bbox, flag, cuong_result= get_day(list_bbox_char, list_bbox_str)
     # day = list_bbox_str[index_day_bbox]
     # print(index_day_bbox)
+    list_index_bbox_time = []
     if flag == True:
         try:
             list_output_time = []
@@ -602,6 +628,7 @@ def get_submit_image(image_path, annot_path):
                     break
                     
                 list_output_time.append([index_time, day])
+                list_index_bbox_time.append(index_time)
 
             list_output_time.sort(key = lambda x: get_center(list_bbox[x[0]]))
             print("BBOX: ", list_bbox[list_output_time[0][0]])
@@ -638,6 +665,8 @@ def get_submit_image(image_path, annot_path):
         prices = list_bbox_str[true_index].split(":")
         prefix_raw = prices[0]
         prices_value = prices[1]
+        prices_value = prices_value.replace("JUNĐ", "VNĐ")
+        prices_value = prices_value.replace("JUND", "VNĐ")
         print("prices: ", prices)
 
         # preprocess value
@@ -717,6 +746,9 @@ def get_submit_image(image_path, annot_path):
                     # preprocess
                     tmp = False
                     prices_value = list_bbox_str[index_prices]
+                    prices_value = prices_value.replace("JUNĐ", "VNĐ")
+                    prices_value = prices_value.replace("JUND", "VNĐ")
+
                     for key, value in PRICES_CHAR.items():
                         for ele in value:
                             index = prices_value.find(ele)
@@ -756,6 +788,7 @@ def get_submit_image(image_path, annot_path):
                             break
                         
                     print("index prices: ", index_prices)
+                    print("prefix_raw after preprocess: ", prefix_raw)
                     # prices = prefix_raw + '|||' + prices_value
                     prefix_raw_preprocess = prefixPreprocess(prefix_raw)
                     if prefix_raw_preprocess != 'Nomatching':
@@ -856,6 +889,7 @@ def get_submit_image(image_path, annot_path):
                                 break
                             
                         print("index prices: ", index_prices)
+                        print("prefix_raw after preprocess: ", prefix_raw)
                         prefix_raw_preprocess = prefixPreprocess(prefix_raw)
                         if prefix_raw_preprocess != 'Nomatching':
                             prefix_raw = prefix_raw_preprocess
@@ -972,17 +1006,27 @@ def get_submit_image(image_path, annot_path):
             list_street = ' '.join(map(str, list_street))
 
             if "Enail" in list_street:
-                list_street = ""
+                list_street = None 
             if "Email" in list_street:
-                list_street = ""
+                list_street = None 
+            if "GIAO" in list_street:
+                list_street = None
+            if "CHONG THƯỜNG" in  list_street:
+                list_street = None
 
-            output_dict[250] = [list_street, 'ADDRESS']
+            if list_street != None:
+                output_dict[250] = [list_street, 'ADDRESS']
                
         else:
             # remove seller in list_index_street
             for i in list_index_street:
                 print("list_bbox_str[i]: ", list_bbox_str[i])
                 if list_bbox_str[i] == list_bbox_str[index_name]:
+                    list_index_street.remove(i)
+            
+            # remove time in list_index_stret
+            for i in list_index_street:
+                if i in list_index_bbox_time:
                     list_index_street.remove(i)
 
             # index = get_street(height, width, name_bbox, list_bbox, list_index_street)
@@ -1010,16 +1054,24 @@ def get_submit_image(image_path, annot_path):
 
                 list_street = ' '.join(map(str, list_street))
                 if "Enail" in list_street:
-                    list_street = ""
+                    list_street = None
                 if "Email" in list_street:
-                    list_street = ""
+                    list_street = None
+                if "GIAO" in list_street:
+                    list_street = None
+                if "CHONG THƯỜNG" in  list_street:
+                    list_street = None
                 print("list_street final: ", list_street)
-                list_output_street.append([index, list_street])
+                if list_street != None:
+                    list_output_street.append([index, list_street])
                 # output_dict[250+cnt_street] = [list_street, 'ADDRESS']
                 # cnt_street += 1
             
             list_output_street.sort(key = lambda x: get_center(list_bbox[x[0]]))
             # list_output_street.sort(key = lambda x: get_center(list_bbox[x[0]])[1])
+            print("list output street before merge&sort: ", list_output_street)
+            # list_output_street = merge_and_sort_street_box(list_output_street, list_bbox, height, width)
+            print("list output street after merge&sort: ", list_output_street)
             for output_street in list_output_street:
                 if "VM+" not in output_street[1]:
                     output_dict[250+cnt_street] = [output_street[1], 'ADDRESS']
@@ -1100,7 +1152,7 @@ if __name__ == "__main__":
     # submit
         # create_result()
 
-    name = "mcocr_private_145120ixnws"
+    name = "mcocr_private_145120wnsla"
 
     annot_path = os.path.join('result_txt', name+".txt")
     image_path = os.path.join('upload', name+".jpg")

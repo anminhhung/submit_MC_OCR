@@ -149,9 +149,8 @@ chơ sủi
 phú thị 
 phú thị gia lâm
 hoàng đạo thúy
+hoàng đạo
 gia lâm
-hoàng
-hoang
 le dai hanh
 dai hanh
 lê đại hành
@@ -176,3 +175,7 @@ ninh
 cầm
 phá
 minh tiến
+xuân
+xuân la
+quảng
+phả
