@@ -33,3 +33,4 @@ tại quầy
 tai quầy
 tai quây
 cộng
+payment

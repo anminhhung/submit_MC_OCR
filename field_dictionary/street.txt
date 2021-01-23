@@ -2,6 +2,7 @@ tổ
 tố
 tỉnh
 tô
+xã
 khu phố
 thị xã
 duong
@@ -181,3 +182,12 @@ quảng
 phả
 khu minh tiến
 tô 7
+hi brand
+du an
+van phu
+do thi
+phu la
+ha dong
+ha noi
+phú thị
+cam tay

@@ -417,7 +417,7 @@ def get_prices(height_img, width_img, prices_box, list_bbox, list_bbox_str):
 
     return bbox_index
 
-def get_index_street(list_bbox_str, number_line=7):
+def get_index_street(list_bbox_str, number_line=8):
     list_street = []
     print("Get index_streeet")
     for i in range(number_line):
@@ -544,8 +544,9 @@ def get_index_name(list_bbox_str, number_line=6):
             if content.find(word) != -1:
         # new_content = findSeller(content)
                 # if new_content != None:
-                flag = True
-                break
+                if "xã" not in content:
+                    flag = True
+                    break
         
         if flag == True:
             print("index name: ", i)
@@ -725,8 +726,12 @@ def get_submit_image(image_path, annot_path):
         # list_name = ' '.join(map(str, list_name))
         name_bbox = list_bbox[index_name]
         if "site" in list_name:
-            list_name = ""
-        output_dict[0] = [list_name, 'SELLER']
+            list_name = None
+        if "9:48)" in list_name:
+            list_name = None
+
+        if list_name != None:
+            output_dict[0] = [list_name, 'SELLER']
     except:
         print("Not found index!")
         pass
@@ -1141,19 +1146,37 @@ def get_submit_image(image_path, annot_path):
             list_street = ' '.join(map(str, list_street))
 
             if "Enail" in list_street:
-                list_street = None 
-            if "Email" in list_street:
-                list_street = None 
-            if "GIAO" in list_street:
                 list_street = None
-            if "CHONG THƯỜNG" in  list_street:
+            elif "Email" in list_street:
                 list_street = None
-            if "Phục vụ" in list_street:
+            elif "GIAO" in list_street:
                 list_street = None
-            
+            elif "CHONG THƯỜNG" in  list_street:
+                list_street = None
+            elif "Phục vụ" in list_street:
+                list_street = None
+            elif "Co.op Food" in list_street:
+                list_street =None
+            elif "Tel" in list_street:
+                list_street = None
+            elif "Website" in list_street:
+                list_street = None
+            elif "TTTM Chợ Sủi" in list_street:
+                list_street = None
+            elif "Co gia tri xuat" in list_street:
+                list_street = None
+            elif list_street == "PHẢ":
+                list_street = None
+            elif list_name != None:
+                if list_street == list_name:
+                    list_street = None
+        
             if list_street != None:
+                list_street = list_street.replace("Tân Lập +", "Tân Lập 4")
+                list_street = list_Street.replace("Cẩm Phả Chinh", "Cẩm Phả QNH")
+
                 output_dict[250] = [list_street, 'ADDRESS']
-               
+                
         else:
             # remove seller in list_index_street
             for i in list_index_street:
@@ -1192,14 +1215,29 @@ def get_submit_image(image_path, annot_path):
                 list_street = ' '.join(map(str, list_street))
                 if "Enail" in list_street:
                     list_street = None
-                if "Email" in list_street:
+                elif "Email" in list_street:
                     list_street = None
-                if "GIAO" in list_street:
+                elif "GIAO" in list_street:
                     list_street = None
-                if "CHONG THƯỜNG" in  list_street:
+                elif "CHONG THƯỜNG" in  list_street:
                     list_street = None
-                if "Phục vụ" in list_street:
+                elif "Phục vụ" in list_street:
                     list_street = None
+                elif "Co.op Food" in list_street:
+                    list_street =None
+                elif "Tel" in list_street:
+                    list_street = None
+                elif "Website" in list_street:
+                    list_street = None
+                elif "TTTM Chợ Sủi" in list_street:
+                    list_street = None  
+                elif "Co gia tri xuat" in list_street:
+                    list_street = None
+                elif list_street == "PHẢ":
+                    list_street = None
+                elif list_name != None:
+                    if list_street == list_name:
+                        list_street = None
 
                 print("list_street final: ", list_street)
                 if list_street != None:
@@ -1208,6 +1246,9 @@ def get_submit_image(image_path, annot_path):
                         list_street_tmp = list_street_tmp[:6]
                         list_street_tmp = ' '.join(map(str, list_street_tmp))
                         list_street = list_street_tmp
+
+                        list_street = list_street.replace("Tân Lập +", "Tân Lập 4")
+                        list_street = list_Street.replace("Cẩm Phả Chinh", "Cẩm Phả QNH")
 
                     list_output_street.append([index, list_street])
                 # output_dict[250+cnt_street] = [list_street, 'ADDRESS']
@@ -1298,7 +1339,7 @@ if __name__ == "__main__":
     # submit
         # create_result()
 
-    name = "mcocr_private_145121ucwhf"
+    name = "mcocr_private_145121odkou"
 
     annot_path = os.path.join('result_txt', name+".txt")
     image_path = os.path.join('upload', name+".jpg")

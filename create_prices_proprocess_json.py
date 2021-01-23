@@ -16,7 +16,7 @@ SELLER_PREPROCESS = ["MINIMART ANAN", "VinCommerce", "Payoo", "coopsmile", "THE 
 
 ADDRESS_POSTPROCESS = {
     "ĐC": ["ĐO", "Đ0", "Đo"],
-    "ĐC:": ["ĐO:", "Đ0:", "Đ0:", "Đó:", "Đó"],
+    "ĐC:": ["ĐO:", "Đ0:", "Đ0:", "Đó:", "Đó", "Đ0:"],
     "đc": ["đo", "đ0"],
     "đc:": ["đo:", "đ0:", "đư:", "đu:"],
     "PHẢ": ["PHÀ", "PHI", "PHẢN"],
@@ -29,7 +29,7 @@ ADDRESS_POSTPROCESS = {
     "Phả,": ["Pha,"],
     "CẨM": ["CÁM"],
     "Thôn": ["Thón"],
-    "QNH": ["ONH", "NHI", "VIH"],
+    "QNH": ["ONH", "NHI", "VIH", "Qunh"],
     "+": ["?", "4"],
     "VM+": ["VIÀ", "VM4", "VIM", "VM", "VINT", "MMA", "VINH", "Vhit", "VMA", "VIN4", "VIA4"],
     "Phú": ["Phủ", "Phý"],
@@ -57,11 +57,14 @@ ADDRESS_POSTPROCESS = {
     "Mỹ": ["Miy"],
     "Tổ": ["Tô", "T6"],
     "Ninh": ["tranh"],
-    "Khu": ["Chu"]
+    "Khu": ["Chu"],
+    "huyện": ["huyên"],
+    "Q.": ["0."]
 }
 
 ADDRESS_PREPROCESS = ["ĐC", "đc", "ĐC:" "PHẢ", "Sủi", "Lâm", "PHỐ", "MỎ", "Cẩm", "Phả", "CẨM", "Thôn", "Phú", \
-    "Niên", "GD-TC", "Sơn", "Q.Nam", "Chợ", "Thị", "Hà", "Nội", "Chu", "Vấp", "Phú-Cẩm", "Quảng", "Mỹ", "VM+", "Khu", "khu"]
+    "Niên", "GD-TC", "Sơn", "Q.Nam", "Chợ", "Thị", "Hà", "Nội", "Chu", "Vấp", "Phú-Cẩm", "Quảng", "Mỹ", "VM+", "Khu", "khu",
+    "Phu", "Ha", "Dong", "Noi", "Phố", "Số"]
 
 TIME_PREPROCESS = {
     "Ngày": ["Ngãy", "Ngãy:", "Ngãy", "Nosyn"],
@@ -111,7 +114,7 @@ PREFIX_CHAR = {
     "PHẢI": ["PHÃI"]
 }
 
-PREFIX_PREPROCESS = ["Tổng Cộng:", "Tổng tiền:", "Thành tiền:", "Tổng cộng (đã gồm VAT)", "Tiền     hách trả:", "TỔNG:",\
+PREFIX_PREPROCESS = ["Tổng cộng:", "Tổng tiền:", "Thành tiền:", "Tổng cộng (đã gồm VAT)", "Tiền khách trả:", "TỔNG:",\
     "TONG GIA TRI THANH TOAN", "TIỀN KHÁCH TRẢ", "Tong so tien thanh toan", "Tổng tiền thanh toán:", "TẠI QUẦY", "Tổng số thanh toán:", \
     "TỔNG TIỀN PHẢI T.TOÁN"]
 
@@ -125,10 +128,10 @@ PREFIX_PRIORITIZE = {
     "tong so tien thanh toan": 6,
     "tong gia tri thanh toan": 7,
     "tiền thanh toán": 8,
-    "tổng tiền": 12,
+    "tổng tiền": 11,
     "tổng cộng (đã gồm vat)": 9,
     "tổng tiền (vat)": 10,
-    "tổng cộng": 11,
+    "tổng cộng": 12,
     "khách phải trả": 13,
     "cộng tiền hàng": 14,
     "thanh toán": 15,
@@ -136,8 +139,9 @@ PREFIX_PRIORITIZE = {
     "tiền khách trả": 17,
     "tiền khách đưa": 18,
     "tổng": 19,
-    "total": 25,
+    "total": 27,
     "cộng": 26,
+    "payment": 26,
 }
 
 a = "TỐNG TIẾN PHẢI T. TOÀN"
